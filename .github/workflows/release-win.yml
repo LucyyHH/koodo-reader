@@ -1,4 +1,4 @@
-name: Build/release
+name: Build/release-win
 
 on: workflow_dispatch
 
@@ -31,26 +31,36 @@ jobs:
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
+      - name: List dist files
+        shell: bash
+        run: |
+          echo "=== All files in dist ==="
+          ls -la dist/
+          echo "=== EXE files ==="
+          ls -la dist/*.exe || true
+          echo "=== ZIP files ==="
+          ls -la dist/*.zip || true
+
       # NSIS 安装包 - 按架构分开
       - name: Upload EXE x64
         uses: actions/upload-artifact@v4
         with:
           name: Koodo-Reader-Windows-Setup-x64
-          path: dist/*Setup*x64.exe
+          path: dist/*x64.exe
 
       - name: Upload EXE ia32
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Koodo-Reader-Windows-Setup-ia32
-          path: dist/*Setup*ia32.exe
+          path: dist/*ia32.exe
 
       - name: Upload EXE arm64
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Koodo-Reader-Windows-Setup-arm64
-          path: dist/*Setup*arm64.exe
+          path: dist/*arm64.exe
 
       # ZIP 便携版
       - name: Upload ZIP portable x64
