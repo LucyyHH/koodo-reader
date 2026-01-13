@@ -72,13 +72,13 @@ jobs:
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: Koodo-Reader-Android-Debug-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-unsigned
+          name: Koodo-Reader-Android-Release-APK
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
       # 发布到 GitHub Releases（当推送 tag 时）

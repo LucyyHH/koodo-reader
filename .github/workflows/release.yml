@@ -31,11 +31,22 @@ jobs:
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-      - name: Upload Windows artifacts
+      - name: Upload EXE installer
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build
-          path: |
-            dist/*.exe
-            dist/*.msi
-            dist/*.zip
+          name: Koodo-Reader-Windows-EXE
+          path: dist/*.exe
+
+      - name: Upload MSI installer
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-Windows-MSI
+          path: dist/*.msi
+
+      - name: Upload ZIP portable
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-Windows-Portable
+          path: dist/*-win.zip
