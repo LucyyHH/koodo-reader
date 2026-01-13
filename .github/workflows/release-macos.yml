@@ -1,0 +1,70 @@
+name: Build/release-macos
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22
+
+      - name: Prepare for app notarization (macOS)
+        run: |
+          mkdir -p ~/private_keys/
+          echo ${{ github.ref }}
+          echo '${{ secrets.API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
+          brew install python-setuptools
+
+      - name: Set environment variable USE_HARD_LINKS
+        run: echo "USE_HARD_LINKS=false" >> $GITHUB_ENV
+
+      - name: Modify package.json for dev branch
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          sed -i '' 's/"productName": "Koodo Reader"/"productName": "Koodo Reader DEV"/' package.json
+
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1.6.0
+        with:
+          build_script_name: "build"
+          github_token: ${{ secrets.github_token }}
+          mac_certs: ${{ secrets.MAC_CERTS }}
+          mac_certs_password: ${{ secrets.MAC_CERTS_PASSWORD }}
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.API_KEY_ISSUER_ID }}
+
+      - name: Upload DMG x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: Koodo-Reader-macOS-x64-DMG
+          path: dist/*x64*.dmg
+
+      - name: Upload DMG arm64
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-macOS-arm64-DMG
+          path: dist/*arm64*.dmg
+
+      - name: Upload ZIP x64
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-macOS-x64-ZIP
+          path: dist/*x64*.zip
+
+      - name: Upload ZIP arm64
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-macOS-arm64-ZIP
+          path: dist/*arm64*.zip

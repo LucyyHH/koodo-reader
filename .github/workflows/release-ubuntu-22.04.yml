@@ -1,0 +1,61 @@
+name: Build/release-ubuntu-22.04
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 22
+
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v1.2.0
+        with:
+          snapcraft_token: ${{ secrets.snapcraft_token }}
+
+      - name: Install Gcc
+        run: |
+          sudo apt update
+          sudo apt-get install gcc-multilib g++-multilib
+
+      - name: Set environment variable USE_HARD_LINKS
+        run: echo "USE_HARD_LINKS=false" >> $GITHUB_ENV
+
+      - name: Modify package.json for dev branch
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          sed -i 's/"productName": "Koodo Reader"/"productName": "Koodo Reader DEV"/' package.json
+
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1.6.0
+        with:
+          build_script_name: "build"
+          github_token: ${{ secrets.github_token }}
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - name: Upload DEB x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: Koodo-Reader-Linux-x64-DEB
+          path: dist/*amd64*.deb
+
+      - name: Upload AppImage x64
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-Linux-x64-AppImage
+          path: dist/*x86_64*.AppImage
+
+      - name: Upload Snap x64
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Koodo-Reader-Linux-x64-Snap
+          path: dist/*.snap

@@ -35,21 +35,21 @@ jobs:
       - name: Upload EXE x64
         uses: actions/upload-artifact@v4
         with:
-          name: Koodo-Reader-Windows-Setup-x64
+          name: Koodo-Reader-win-setup-x64
           path: dist/*x64.exe
 
       - name: Upload EXE ia32
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Koodo-Reader-Windows-Setup-ia32
+          name: Koodo-Reader-win-setup-ia32
           path: dist/*ia32.exe
 
       - name: Upload EXE arm64
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Koodo-Reader-Windows-Setup-arm64
+          name: Koodo-Reader-win-setup-arm64
           path: dist/*arm64.exe
 
       # ZIP 便携版
@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Koodo-Reader-Windows-x64-Portable-ZIP
+          name: Koodo-Reader-win-x64-portable-zip
           path: dist/*-win.zip
 
       # Portable 单文件版
@@ -65,5 +65,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Koodo-Reader-Windows-x64-Portable-EXE
+          name: Koodo-Reader-win-x64-portable-exe
           path: dist/*portable*.exe
