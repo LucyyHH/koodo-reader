@@ -121,75 +121,55 @@ class SettingDialog extends React.Component<
     return (
       <>
         {/* 自定义AI配置区域 */}
-        <div className="setting-dialog-new-title" style={{ fontWeight: "bold", marginBottom: "10px" }}>
+        <div className="setting-dialog-new-title" style={{ fontWeight: "bold" }}>
           <Trans>Custom AI Service</Trans>
         </div>
-        <p className="setting-option-subtitle" style={{ marginBottom: "15px" }}>
+        <p className="setting-option-subtitle" style={{ marginBottom: "10px" }}>
           <Trans>Configure your own OpenAI-compatible API to use AI features without login</Trans>
         </p>
         
-        <div className="setting-dialog-new-title">
-          <span style={{ width: "100px" }}>API URL</span>
+        <div style={{ display: "flex", gap: "8px", marginBottom: "10px", alignItems: "center" }}>
           <input
             type="text"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px" }}
-            placeholder="https://api.openai.com/v1"
+            style={{ flex: 2, margin: 0 }}
+            placeholder="API URL (https://api.openai.com/v1)"
             value={this.state.customAIUrl}
             onChange={(e) => this.setState({ customAIUrl: e.target.value })}
             onContextMenu={() => handleContextMenu("custom-ai-url")}
             id="custom-ai-url"
           />
-        </div>
-        <p className="setting-option-subtitle">
-          <Trans>OpenAI-compatible API endpoint, e.g. https://api.openai.com/v1</Trans>
-        </p>
-
-        <div className="setting-dialog-new-title">
-          <span style={{ width: "100px" }}>API Key</span>
           <input
             type="password"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px" }}
-            placeholder="sk-xxxxxxxxxxxxxxxx"
+            style={{ flex: 2, margin: 0 }}
+            placeholder="API Key"
             value={this.state.customAIKey}
             onChange={(e) => this.setState({ customAIKey: e.target.value })}
             onContextMenu={() => handleContextMenu("custom-ai-key")}
             id="custom-ai-key"
           />
-        </div>
-        <p className="setting-option-subtitle">
-          <Trans>Your API key for authentication</Trans>
-        </p>
-
-        <div className="setting-dialog-new-title">
-          <span style={{ width: "100px" }}><Trans>Model</Trans></span>
           <input
             type="text"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px" }}
-            placeholder="gpt-3.5-turbo"
+            style={{ flex: 1, margin: 0 }}
+            placeholder="Model"
             value={this.state.customAIModel}
             onChange={(e) => this.setState({ customAIModel: e.target.value })}
             onContextMenu={() => handleContextMenu("custom-ai-model")}
             id="custom-ai-model"
           />
         </div>
-        <p className="setting-option-subtitle">
-          <Trans>Model name, e.g. gpt-3.5-turbo, gpt-4, claude-3-sonnet, etc.</Trans>
-        </p>
 
-        <div className="setting-dialog-new-title" style={{ justifyContent: "flex-end", marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginBottom: "15px" }}>
           <span
             className="change-location-button"
-            style={{ marginRight: "10px" }}
             onClick={() => this.handleClearCustomAI()}
           >
             <Trans>Clear</Trans>
           </span>
           <span
             className="change-location-button"
-            style={{ marginRight: "10px" }}
             onClick={() => this.handleTestCustomAI()}
           >
             {this.state.isTestingAI ? <Trans>Testing...</Trans> : <Trans>Test</Trans>}
