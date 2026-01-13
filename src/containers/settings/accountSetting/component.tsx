@@ -232,6 +232,19 @@ class AccountSetting extends React.Component<
     }
   };
   render() {
+    // 如果隐藏登录功能启用，显示提示信息
+    if (ConfigService.getReaderConfig("isHideLogin") === "yes") {
+      return (
+        <div style={{ padding: "20px 25px" }}>
+          <div className="setting-dialog-new-title" style={{ fontWeight: "bold", marginBottom: "15px" }}>
+            <Trans>Login feature is hidden</Trans>
+          </div>
+          <p className="setting-option-subtitle" style={{ lineHeight: "1.6" }}>
+            <Trans>You have enabled "Hide login feature" in the plugin settings. All features are available without login. If you need to use login feature, please disable this option in Settings - Plugins.</Trans>
+          </p>
+        </div>
+      );
+    }
     return (
       <>
         {(this.state.settingLogin === "google" ||

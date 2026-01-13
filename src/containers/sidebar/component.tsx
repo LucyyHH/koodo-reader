@@ -255,10 +255,10 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
               (ConfigService.getReaderConfig("appSkin") === "system" &&
                 ConfigService.getReaderConfig("isOSNight") === "yes")
                 ? require(`../../assets/images/logo-dark${
-                    this.props.isAuthed ? "-pro" : ""
+                    this.props.isAuthed && ConfigService.getReaderConfig("isHideLogin") !== "yes" ? "-pro" : ""
                   }.png`)
                 : require(`../../assets/images/logo-light${
-                    this.props.isAuthed ? "-pro" : ""
+                    this.props.isAuthed && ConfigService.getReaderConfig("isHideLogin") !== "yes" ? "-pro" : ""
                   }.png`)
             }
             alt=""

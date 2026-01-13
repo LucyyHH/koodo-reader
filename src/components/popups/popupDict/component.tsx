@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import DatabaseService from "../../../utils/storage/databaseService";
 import { checkPlugin } from "../../../utils/common";
 import { getDictText } from "../../../utils/request/reader";
+import { isCustomAIEnabled, customAIDictionary } from "../../../utils/request/customAI";
 declare var window: any;
 class PopupDict extends React.Component<PopupDictProps, PopupDictState> {
   constructor(props: PopupDictProps) {
@@ -49,7 +50,8 @@ class PopupDict extends React.Component<PopupDictProps, PopupDictState> {
         this.props.plugins.findIndex(
           (item) => item.key === this.state.dictService
         ) === -1) &&
-      !this.props.isAuthed
+      !this.props.isAuthed &&
+      !isCustomAIEnabled()
     ) {
       this.setState({ isAddNew: true });
     }
@@ -72,7 +74,8 @@ class PopupDict extends React.Component<PopupDictProps, PopupDictState> {
     try {
       if (
         this.state.dictService &&
-        this.state.dictService !== "official-ai-dict-plugin"
+        this.state.dictService !== "official-ai-dict-plugin" &&
+        this.state.dictService !== "custom-ai-dict-plugin"
       ) {
         let plugin = this.props.plugins.find(
           (item) => item.key === this.state.dictService
@@ -95,6 +98,20 @@ class PopupDict extends React.Component<PopupDictProps, PopupDictState> {
           isAddNew: false,
         });
         dictText = await getDictText(
+          text,
+          ConfigService.getReaderConfig("dictTarget") || "auto",
+          ConfigService.getReaderConfig("lang") &&
+            ConfigService.getReaderConfig("lang").startsWith("zh")
+            ? "chs"
+            : "eng"
+        );
+      } else if (isCustomAIEnabled()) {
+        // 使用自定义AI词典
+        this.setState({
+          dictService: "custom-ai-dict-plugin",
+          isAddNew: false,
+        });
+        dictText = await customAIDictionary(
           text,
           ConfigService.getReaderConfig("dictTarget") || "auto",
           ConfigService.getReaderConfig("lang") &&

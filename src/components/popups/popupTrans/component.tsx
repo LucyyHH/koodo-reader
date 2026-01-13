@@ -14,6 +14,7 @@ import {
 import DatabaseService from "../../../utils/storage/databaseService";
 import { checkPlugin } from "../../../utils/common";
 import { getTransStream } from "../../../utils/request/reader";
+import { isCustomAIEnabled, customAITranslate } from "../../../utils/request/customAI";
 declare var window: any;
 class PopupTrans extends React.Component<PopupTransProps, PopupTransState> {
   constructor(props: PopupTransProps) {
@@ -31,7 +32,7 @@ class PopupTrans extends React.Component<PopupTransProps, PopupTransState> {
   componentDidMount() {
     let originalText = this.props.originalText.replace(/(\r\n|\n|\r)/gm, "");
     this.setState({ originalText: originalText });
-    if (!this.state.transService) {
+    if (!this.state.transService && !isCustomAIEnabled()) {
       this.setState({
         isAddNew: true,
       });
@@ -43,7 +44,8 @@ class PopupTrans extends React.Component<PopupTransProps, PopupTransState> {
   handleTrans = async (text: string) => {
     if (
       this.state.transService &&
-      this.state.transService !== "official-ai-trans-plugin"
+      this.state.transService !== "official-ai-trans-plugin" &&
+      this.state.transService !== "custom-ai-trans-plugin"
     ) {
       let plugin = this.props.plugins.find(
         (item) => item.key === this.state.transService
@@ -123,6 +125,53 @@ class PopupTrans extends React.Component<PopupTransProps, PopupTransState> {
         }
       );
       this.setState({ isFinishOutput: true });
+    } else if (isCustomAIEnabled()) {
+      // 使用自定义AI翻译
+      this.setState({
+        transService: "custom-ai-trans-plugin",
+        isAddNew: false,
+      });
+      let plugin = this.props.plugins.find(
+        (item) => item.key === "custom-ai-trans-plugin"
+      );
+      if (!plugin) {
+        return;
+      }
+      let isFirst = true;
+      try {
+        await customAITranslate(
+          text,
+          ConfigService.getReaderConfig("transSource") || "Automatic",
+          ConfigService.getReaderConfig("transTarget") ||
+            getDefaultTransTarget(plugin.langList),
+          (result) => {
+            if (result && result.done) {
+              this.setState({ isFinishOutput: true });
+              return;
+            }
+            if (result && result.text) {
+              if (isFirst) {
+                this.setState({
+                  translatedText: result.text,
+                });
+                isFirst = false;
+              } else {
+                this.setState({
+                  translatedText: this.state.translatedText + result.text,
+                });
+              }
+            }
+          }
+        );
+        this.setState({ isFinishOutput: true });
+      } catch (err) {
+        toast.error(
+          this.props.t("Translation failed") +
+            ": " +
+            (err instanceof Error ? err.message : String(err))
+        );
+        console.error(err);
+      }
     }
   };
   handleChangeService(target: string) {

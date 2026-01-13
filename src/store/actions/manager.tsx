@@ -15,6 +15,7 @@ import {
 import toast from "react-hot-toast";
 import BookUtil from "../../utils/file/bookUtil";
 import i18n from "../../i18n";
+import { isCustomAIEnabled } from "../../utils/request/customAI";
 
 export function handleBooks(books: BookModel[]) {
   return { type: "HANDLE_BOOKS", payload: books };
@@ -239,11 +240,14 @@ export function handleFetchPlugins() {
       try {
         TokenService.getToken("is_authed").then((value) => {
           let isAuthed = value === "yes";
-          if (isAuthed) {
+          let hasCustomAI = isCustomAIEnabled();
+          
+          // 如果用户已登录或配置了自定义AI，则添加AI插件
+          if (isAuthed || hasCustomAI) {
             let dictPlugin = new PluginModel(
-              "official-ai-dict-plugin",
+              hasCustomAI && !isAuthed ? "custom-ai-dict-plugin" : "official-ai-dict-plugin",
               "dictionary",
-              "Official AI Dictionary",
+              hasCustomAI && !isAuthed ? "Custom AI Dictionary" : "Official AI Dictionary",
               "dict",
               "1.0.0",
               "",
@@ -255,9 +259,9 @@ export function handleFetchPlugins() {
             );
             pluginList.push(dictPlugin);
             let transPlugin = new PluginModel(
-              "official-ai-trans-plugin",
+              hasCustomAI && !isAuthed ? "custom-ai-trans-plugin" : "official-ai-trans-plugin",
               "translation",
-              "Official AI Translation",
+              hasCustomAI && !isAuthed ? "Custom AI Translation" : "Official AI Translation",
               "translation",
               "1.0.0",
               "",
@@ -269,9 +273,9 @@ export function handleFetchPlugins() {
             );
             pluginList.push(transPlugin);
             let sumPlugin = new PluginModel(
-              "official-ai-assistant-plugin",
+              hasCustomAI && !isAuthed ? "custom-ai-assistant-plugin" : "official-ai-assistant-plugin",
               "assistant",
-              "Official AI Assistant",
+              hasCustomAI && !isAuthed ? "Custom AI Assistant" : "Official AI Assistant",
               "assistant",
               "1.0.0",
               "",
@@ -282,50 +286,54 @@ export function handleFetchPlugins() {
               ""
             );
             pluginList.push(sumPlugin);
-            let sortedVoiceList = [...officialVoiceList];
-            if (
-              ConfigService.getReaderConfig("lang") &&
-              ConfigService.getReaderConfig("lang").startsWith("zh")
-            ) {
-              //move zh-CN to first
-              sortedVoiceList.sort((a: any, b: any) => {
-                if (a.locale === "zh-CN") {
-                  return -1;
-                } else if (b.locale === "zh-CN") {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              });
+            
+            // 只有登录用户才有官方语音服务
+            if (isAuthed) {
+              let sortedVoiceList = [...officialVoiceList];
+              if (
+                ConfigService.getReaderConfig("lang") &&
+                ConfigService.getReaderConfig("lang").startsWith("zh")
+              ) {
+                //move zh-CN to first
+                sortedVoiceList.sort((a: any, b: any) => {
+                  if (a.locale === "zh-CN") {
+                    return -1;
+                  } else if (b.locale === "zh-CN") {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                });
+              }
+              let voicePlugin = new PluginModel(
+                "official-ai-voice-plugin",
+                "voice",
+                "Official AI Voice",
+                "speaker",
+                "1.0.0",
+                "",
+                {},
+                {},
+                sortedVoiceList.map((item: any) => {
+                  item.plugin = "official-ai-voice-plugin";
+                  item.config = {};
+                  item.displayName =
+                    i18n.t("Official AI Voice") +
+                    " - " +
+                    item.displayName +
+                    " - " +
+                    item.language +
+                    " - " +
+                    (item.gender === "female"
+                      ? i18n.t("Female voice")
+                      : i18n.t("Male voice"));
+                  return item;
+                }),
+                "",
+                ""
+              );
+              pluginList.push(voicePlugin);
             }
-            let voicePlugin = new PluginModel(
-              "official-ai-voice-plugin",
-              "voice",
-              "Official AI Voice",
-              "speaker",
-              "1.0.0",
-              "",
-              {},
-              {},
-              sortedVoiceList.map((item: any) => {
-                item.plugin = "official-ai-voice-plugin";
-                item.config = {};
-                item.displayName =
-                  i18n.t("Official AI Voice") +
-                  " - " +
-                  item.displayName +
-                  " - " +
-                  item.language +
-                  " - " +
-                  (item.gender === "female"
-                    ? i18n.t("Female voice")
-                    : i18n.t("Male voice"));
-                return item;
-              }),
-              "",
-              ""
-            );
-            pluginList.push(voicePlugin);
             dispatch(handlePlugins(pluginList));
           } else {
             dispatch(handlePlugins(pluginList));

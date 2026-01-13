@@ -40,4 +40,9 @@ export interface SettingInfoState {
   driveConfig: any;
   loginConfig: any;
   settingLogin: string;
+  customAIUrl: string;
+  customAIKey: string;
+  customAIModel: string;
+  isTestingAI: boolean;
+  isHideLogin: boolean;
 }

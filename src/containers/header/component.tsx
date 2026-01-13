@@ -538,7 +538,7 @@ class Header extends React.Component<HeaderProps, HeaderState> {
         className="header"
         style={this.props.isCollapsed ? { marginLeft: "40px" } : {}}
       >
-        {isElectron && this.props.isAuthed && (
+        {isElectron && this.props.isAuthed && ConfigService.getReaderConfig("isHideLogin") !== "yes" && (
           <div
             className="header-chat-widget"
             onClick={() => {
@@ -670,7 +670,7 @@ class Header extends React.Component<HeaderProps, HeaderState> {
           </div>
         </div>
 
-        {!this.props.isAuthed && !this.state.isHidePro ? (
+        {!this.props.isAuthed && !this.state.isHidePro && ConfigService.getReaderConfig("isHideLogin") !== "yes" ? (
           <div className="header-report-container">
             <span
               style={{ textDecoration: "underline" }}

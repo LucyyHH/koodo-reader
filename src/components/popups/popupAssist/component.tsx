@@ -16,6 +16,7 @@ import { checkPlugin } from "../../../utils/common";
 import { getAnswerStream } from "../../../utils/request/reader";
 import { marked } from "marked";
 import { sampleQuestion } from "../../../constants/settingList";
+import { isCustomAIEnabled, customAIAnswer } from "../../../utils/request/customAI";
 class PopupAssist extends React.Component<PopupAssistProps, PopupAssistState> {
   private chatBoxRef: React.RefObject<HTMLDivElement>;
 
@@ -64,7 +65,8 @@ class PopupAssist extends React.Component<PopupAssistProps, PopupAssistState> {
         this.props.plugins.findIndex(
           (item) => item.key === this.state.aiService
         ) === -1) &&
-      !this.props.isAuthed
+      !this.props.isAuthed &&
+      !isCustomAIEnabled()
     ) {
       this.setState({ isAddNew: true });
     }
@@ -74,7 +76,8 @@ class PopupAssist extends React.Component<PopupAssistProps, PopupAssistState> {
     try {
       if (
         this.state.aiService &&
-        this.state.aiService !== "official-ai-assistant-plugin"
+        this.state.aiService !== "official-ai-assistant-plugin" &&
+        this.state.aiService !== "custom-ai-assistant-plugin"
       ) {
       } else if (this.props.isAuthed) {
         let plugin = this.props.plugins.find(
@@ -144,6 +147,69 @@ class PopupAssist extends React.Component<PopupAssistProps, PopupAssistState> {
         //     question: "",
         //   });
         // }
+        this.scrollToBottom();
+      } else if (isCustomAIEnabled()) {
+        // 使用自定义AI助手
+        let plugin = this.props.plugins.find(
+          (item) => item.key === "custom-ai-assistant-plugin"
+        );
+        if (!plugin) {
+          return;
+        }
+        let isFirst = true;
+        let res = await customAIAnswer(
+          text,
+          this.state.question,
+          this.state.mode === "ask"
+            ? this.state.askHistory
+            : this.state.chatHistory,
+          this.state.mode,
+          (result) => {
+            if (result && result.text) {
+              if (isFirst) {
+                this.setState({
+                  answer: result.text,
+                  isWaiting: false,
+                });
+                isFirst = false;
+              } else {
+                this.setState({
+                  answer: this.state.answer + result.text,
+                });
+              }
+            }
+            this.scrollToBottom();
+          }
+        );
+        if (res.data && res.done) {
+          if (this.state.mode === "ask") {
+            this.setState({
+              askHistory: [
+                ...this.state.askHistory,
+                {
+                  role: "assistant",
+                  content: this.state.answer,
+                },
+              ],
+              answer: "",
+              question: "",
+              isWaiting: false,
+            });
+          } else {
+            this.setState({
+              chatHistory: [
+                ...this.state.chatHistory,
+                {
+                  role: "assistant",
+                  content: this.state.answer,
+                },
+              ],
+              answer: "",
+              question: "",
+              isWaiting: false,
+            });
+          }
+        }
         this.scrollToBottom();
       }
     } catch (error) {

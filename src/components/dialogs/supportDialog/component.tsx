@@ -58,7 +58,7 @@ class SupportDialog extends React.Component<
   render() {
     return (
       <>
-        {this.props.isAuthed && this.props.isShowSupport && (
+        {this.props.isAuthed && this.props.isShowSupport && ConfigService.getReaderConfig("isHideLogin") !== "yes" && (
           <div className="new-version">
             {this.state.isExitPro ? (
               <>
