@@ -118,13 +118,14 @@ class BackupDialog extends React.Component<
       );
       return;
     }
-    if (
-      driveList.find((item) => item.value === event.target.value)?.isPro &&
-      !this.props.isAuthed
-    ) {
-      toast(this.props.t("This feature is not available in the free version"));
-      return;
-    }
+    // Pro功能已解锁，跳过验证
+    // if (
+    //   driveList.find((item) => item.value === event.target.value)?.isPro &&
+    //   !this.props.isAuthed
+    // ) {
+    //   toast(this.props.t("This feature is not available in the free version"));
+    //   return;
+    // }
     if (event.target.value === "add") {
       toast(this.props.t("Please add data source in the setting"));
       return;

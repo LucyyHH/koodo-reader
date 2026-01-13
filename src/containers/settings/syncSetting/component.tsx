@@ -103,13 +103,14 @@ class SyncSetting extends React.Component<SettingInfoProps, SettingInfoState> {
       );
       return;
     }
-    if (
-      driveList.find((item) => item.value === targetDrive)?.isPro &&
-      !this.props.isAuthed
-    ) {
-      toast(this.props.t("This feature is not available in the free version"));
-      return;
-    }
+    // Pro功能已解锁，跳过验证
+    // if (
+    //   driveList.find((item) => item.value === targetDrive)?.isPro &&
+    //   !this.props.isAuthed
+    // ) {
+    //   toast(this.props.t("This feature is not available in the free version"));
+    //   return;
+    // }
     this.props.handleSettingDrive(targetDrive);
     let settingDrive = targetDrive;
     if (
