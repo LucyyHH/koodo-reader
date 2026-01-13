@@ -448,6 +448,8 @@ export const officialDictList = [
     nativeLang: "Classical Chinese",
   },
 ];
+export const officialVoiceList: any[] = [];
+
 export const sampleQuestion = [
   {
     mode: "ask",
