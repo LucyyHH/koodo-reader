@@ -295,10 +295,7 @@ class CoverUtil {
     }
   }
   static async uploadCover(cover: string) {
-    let isAuthed = await TokenService.getToken("is_authed");
-    if (isAuthed !== "yes") {
-      return;
-    }
+    // 移除登录检查，只要配置了数据源就上传
     if (isElectron) {
       const { ipcRenderer } = window.require("electron");
       let service = ConfigService.getItem("defaultSyncOption");
@@ -403,10 +400,7 @@ class CoverUtil {
     }
   }
   static async deleteCloudCover(key: string) {
-    let isAuthed = await TokenService.getToken("is_authed");
-    if (isAuthed !== "yes") {
-      return;
-    }
+    // 移除登录检查，只要配置了数据源就删除云端封面
     let coverList = await this.getCloudCoverList();
     for (let cover of coverList) {
       if (cover.startsWith(key)) {

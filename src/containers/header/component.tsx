@@ -639,17 +639,12 @@ class Header extends React.Component<HeaderProps, HeaderState> {
           <div
             className="setting-icon-container"
             onClick={async () => {
-              if (!isElectron && !this.props.isAuthed) {
-                toast(
-                  this.props.t(
-                    "This feature is not available in the free version"
-                  )
-                );
-                return;
-              }
               this.setState({ isSync: true });
-              if (this.props.isAuthed) {
-                await this.props.handleFetchUserInfo();
+              // 如果配置了数据源，使用云端同步；否则使用本地同步
+              if (ConfigService.getItem("defaultSyncOption")) {
+                if (this.props.isAuthed) {
+                  await this.props.handleFetchUserInfo();
+                }
                 this.handleCloudSync();
               } else {
                 this.handleLocalSync();

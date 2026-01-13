@@ -191,10 +191,8 @@ class BookUtil {
       toast.loading(i18n.t("Downloading"), {
         id: "offline-book",
       });
-      if (
-        (await TokenService.getToken("is_authed")) === "yes" &&
-        (await this.isBookExistInCloud(book.key))
-      ) {
+      // 移除登录检查，只要配置了数据源且云端有书籍就下载
+      if (await this.isBookExistInCloud(book.key)) {
         let timer = showDownloadProgress(
           ConfigService.getItem("defaultSyncOption") || "",
           "cloud",
@@ -383,10 +381,7 @@ class BookUtil {
     if (key.startsWith("cache")) {
       return;
     }
-    let isAuthed = await TokenService.getToken("is_authed");
-    if (isAuthed !== "yes") {
-      return;
-    }
+    // 移除登录检查，只要配置了数据源就上传
     let service = ConfigService.getItem("defaultSyncOption");
     if (!service) {
       return;
@@ -428,10 +423,7 @@ class BookUtil {
     }
   }
   static async deleteCloudBook(key: string, format: string) {
-    let isAuthed = await TokenService.getToken("is_authed");
-    if (isAuthed !== "yes") {
-      return;
-    }
+    // 移除登录检查，只要配置了数据源就删除云端文件
     let service = ConfigService.getItem("defaultSyncOption");
     if (!service) {
       return;

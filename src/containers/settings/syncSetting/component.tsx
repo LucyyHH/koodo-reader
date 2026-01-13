@@ -697,70 +697,69 @@ class SyncSetting extends React.Component<SettingInfoProps, SettingInfoState> {
               ))}
           </select>
         </div>
-        {this.props.isAuthed && (
-          <div className="setting-dialog-new-title">
-            <Trans>Set default sync option</Trans>
-            <select
-              name=""
-              className="lang-setting-dropdown"
-              onChange={async (event) => {
-                event.preventDefault();
-                const newValue = event.target.value;
-                const currentValue = this.props.defaultSyncOption;
+        {/* 移除登录检查，允许未登录用户设置默认同步选项 */}
+        <div className="setting-dialog-new-title">
+          <Trans>Set default sync option</Trans>
+          <select
+            name=""
+            className="lang-setting-dropdown"
+            onChange={async (event) => {
+              event.preventDefault();
+              const newValue = event.target.value;
+              const currentValue = this.props.defaultSyncOption;
 
-                let onlineBooks: Book[] = [];
-                for (let i = 0; i < this.props.books.length; i++) {
-                  if (
-                    !(await BookUtil.isBookOffline(this.props.books[i].key))
-                  ) {
-                    onlineBooks.push(this.props.books[i]);
-                  }
-                }
+              let onlineBooks: Book[] = [];
+              for (let i = 0; i < this.props.books.length; i++) {
                 if (
-                  onlineBooks.length > 0 &&
-                  this.props.defaultSyncOption &&
-                  newValue !== this.props.defaultSyncOption
+                  !(await BookUtil.isBookOffline(this.props.books[i].key))
                 ) {
-                  let result = await vexComfirmAsync(
-                    "Some of your books are currently not downloaded to the local. Changing the default sync option may lead to data loss. We recommend downloading all books to the local by turn on Auto download cloud books in the setting before changing the default sync option. Click 'OK' to proceed without downloading."
-                  );
-                  if (result) {
-                    this.handleSetDefaultSyncOption({
-                      target: { value: newValue },
-                    });
-                  } else {
-                    event.target.value = currentValue;
-                  }
-                } else {
-                  this.handleSetDefaultSyncOption(event);
+                  onlineBooks.push(this.props.books[i]);
                 }
-              }}
-            >
-              {[
-                { label: "Please select", value: "", isPro: false },
-                ...driveList,
-              ]
-                .filter(
-                  (item) =>
-                    this.props.dataSourceList.includes(item.value) ||
-                    item.value === "" ||
-                    item.value === "local"
-                )
-                .map((item) => (
-                  <option
-                    value={item.value}
-                    key={item.value}
-                    className="lang-setting-option"
-                    selected={
-                      item.value === this.props.defaultSyncOption ? true : false
-                    }
-                  >
-                    {this.props.t(item.label) + (item.isPro ? " (Pro)" : "")}
-                  </option>
-                ))}
-            </select>
-          </div>
-        )}
+              }
+              if (
+                onlineBooks.length > 0 &&
+                this.props.defaultSyncOption &&
+                newValue !== this.props.defaultSyncOption
+              ) {
+                let result = await vexComfirmAsync(
+                  "Some of your books are currently not downloaded to the local. Changing the default sync option may lead to data loss. We recommend downloading all books to the local by turn on Auto download cloud books in the setting before changing the default sync option. Click 'OK' to proceed without downloading."
+                );
+                if (result) {
+                  this.handleSetDefaultSyncOption({
+                    target: { value: newValue },
+                  });
+                } else {
+                  event.target.value = currentValue;
+                }
+              } else {
+                this.handleSetDefaultSyncOption(event);
+              }
+            }}
+          >
+            {[
+              { label: "Please select", value: "", isPro: false },
+              ...driveList,
+            ]
+              .filter(
+                (item) =>
+                  this.props.dataSourceList.includes(item.value) ||
+                  item.value === "" ||
+                  item.value === "local"
+              )
+              .map((item) => (
+                <option
+                  value={item.value}
+                  key={item.value}
+                  className="lang-setting-option"
+                  selected={
+                    item.value === this.props.defaultSyncOption ? true : false
+                  }
+                >
+                  {this.props.t(item.label) + (item.isPro ? " (Pro)" : "")}
+                </option>
+              ))}
+          </select>
+        </div>
         {isElectron && (
           <>
             <div className="setting-dialog-new-title">
@@ -801,31 +800,35 @@ class SyncSetting extends React.Component<SettingInfoProps, SettingInfoState> {
           </>
         )}
 
-        {this.props.isAuthed && this.renderSwitchOption(syncSettingList)}
-        {this.props.isAuthed && (
-          <>
-            <div className="setting-dialog-new-title">
-              <Trans>Reset sync records</Trans>
-
-              <span
-                className="change-location-button"
-                onClick={async () => {
-                  await generateSyncRecord();
-                  toast.success(this.props.t("Reset successful"));
-                }}
-              >
-                <Trans>Reset</Trans>
-              </span>
-            </div>
-            <p className="setting-option-subtitle">
-              <Trans>
-                {
-                  "Data in other devices is messed up, but the data in this device is normal. You can reset the sync record in this device, delete the KoodoReader/config folder in the data source(Turn off Koodo Sync if necessary), and sync again. This should resolve the issue"
-                }
-              </Trans>
-            </p>
-          </>
+        {/* 移除登录检查，过滤掉需要登录的 Koodo Sync 选项 */}
+        {this.renderSwitchOption(
+          this.props.isAuthed
+            ? syncSettingList
+            : syncSettingList.filter((item) => item.propName !== "isEnableKoodoSync")
         )}
+        {/* 移除登录检查，允许未登录用户重置同步记录 */}
+        <>
+          <div className="setting-dialog-new-title">
+            <Trans>Reset sync records</Trans>
+
+            <span
+              className="change-location-button"
+              onClick={async () => {
+                await generateSyncRecord();
+                toast.success(this.props.t("Reset successful"));
+              }}
+            >
+              <Trans>Reset</Trans>
+            </span>
+          </div>
+          <p className="setting-option-subtitle">
+            <Trans>
+              {
+                "Data in other devices is messed up, but the data in this device is normal. You can reset the sync record in this device, delete the KoodoReader/config folder in the data source(Turn off Koodo Sync if necessary), and sync again. This should resolve the issue"
+              }
+            </Trans>
+          </p>
+        </>
       </>
     );
   }

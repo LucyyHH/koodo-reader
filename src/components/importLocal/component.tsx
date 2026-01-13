@@ -108,8 +108,9 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
 
         await CoverUtil.addCover(book);
       }
+      // 移除登录检查，只要配置了数据源且以引用方式导入就上传
       if (
-        this.props.isAuthed &&
+        ConfigService.getItem("defaultSyncOption") &&
         ConfigService.getReaderConfig("isImportPath") === "yes"
       ) {
         this.uploadBookToCloud(book);
