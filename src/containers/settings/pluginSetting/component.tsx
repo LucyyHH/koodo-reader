@@ -128,7 +128,7 @@ class SettingDialog extends React.Component<
           <Trans>Configure your own OpenAI-compatible API to use AI features without login</Trans>
         </p>
         
-        <div className="setting-dialog-new-title">
+        <div className="setting-dialog-new-title" style={{ alignItems: "center" }}>
           <span style={{ width: "100px" }}>API URL</span>
           <input
             type="text"
@@ -145,7 +145,7 @@ class SettingDialog extends React.Component<
           <Trans>OpenAI-compatible API endpoint, e.g. https://api.openai.com/v1</Trans>
         </p>
 
-        <div className="setting-dialog-new-title">
+        <div className="setting-dialog-new-title" style={{ alignItems: "center" }}>
           <span style={{ width: "100px" }}>API Key</span>
           <input
             type="password"
@@ -162,7 +162,7 @@ class SettingDialog extends React.Component<
           <Trans>Your API key for authentication</Trans>
         </p>
 
-        <div className="setting-dialog-new-title">
+        <div className="setting-dialog-new-title" style={{ alignItems: "center" }}>
           <span style={{ width: "100px" }}><Trans>Model</Trans></span>
           <input
             type="text"
