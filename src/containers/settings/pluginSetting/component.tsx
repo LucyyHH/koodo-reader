@@ -133,7 +133,7 @@ class SettingDialog extends React.Component<
           <input
             type="text"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "32px", padding: "4px 8px" }}
+            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "24px", padding: "2px 8px" }}
             placeholder="https://api.openai.com/v1"
             value={this.state.customAIUrl}
             onChange={(e) => this.setState({ customAIUrl: e.target.value })}
@@ -150,7 +150,7 @@ class SettingDialog extends React.Component<
           <input
             type="password"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "32px", padding: "4px 8px" }}
+            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "24px", padding: "2px 8px" }}
             placeholder="sk-xxxxxxxxxxxxxxxx"
             value={this.state.customAIKey}
             onChange={(e) => this.setState({ customAIKey: e.target.value })}
@@ -167,7 +167,7 @@ class SettingDialog extends React.Component<
           <input
             type="text"
             className="token-dialog-token-box"
-            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "32px", padding: "4px 8px" }}
+            style={{ width: "calc(100% - 120px)", marginLeft: "10px", height: "24px", padding: "2px 8px" }}
             placeholder="gpt-3.5-turbo"
             value={this.state.customAIModel}
             onChange={(e) => this.setState({ customAIModel: e.target.value })}
