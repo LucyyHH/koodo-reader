@@ -1,4 +1,4 @@
-package xyz.960960.koodo;
+package com.lucyyhh.koodo;
 
 import com.getcapacitor.BridgeActivity;
 
