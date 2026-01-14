@@ -47,27 +47,19 @@ jobs:
           cd android
           ./gradlew assembleDebug
 
-      - name: Build APK (Release - unsigned)
+      - name: Setup Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+      - name: Build signed APK (Release)
         run: |
           cd android
           ./gradlew assembleRelease
-
-      # 如果你有签名密钥，取消下面的注释并配置 secrets
-      # - name: Setup Keystore
-      #   run: |
-      #     echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
-      #   env:
-      #     ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-
-      # - name: Build signed APK
-      #   run: |
-      #     cd android
-      #     ./gradlew assembleRelease
-      #   env:
-      #     KEYSTORE_PATH: app/release.keystore
-      #     KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-      #     KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
-      #     KEYSTORE_ALIAS_PASSWORD: ${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
+        env:
+          KEYSTORE_PATH: app/release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEYSTORE_ALIAS_PASSWORD: ${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
@@ -79,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Koodo-Reader-Android-Release-APK
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       # 发布到 GitHub Releases（当推送 tag 时）
       - name: Upload to GitHub Release
@@ -88,6 +80,6 @@ jobs:
         with:
           files: |
             android/app/build/outputs/apk/debug/app-debug.apk
-            android/app/build/outputs/apk/release/app-release-unsigned.apk
+            android/app/build/outputs/apk/release/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
