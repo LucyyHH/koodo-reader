@@ -42,22 +42,25 @@
   .header {
     margin-left: 0 !important;
     width: 100% !important;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
+    padding: 0 !important;
+    padding-top: 60px !important; /* 为顶部工具栏留空间 */
+    display: block !important;
     height: auto !important;
-    position: relative;
+    min-height: 110px !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
   /* 移动端菜单按钮 */
   .mobile-menu-btn {
     display: flex !important;
-    position: fixed;
-    left: 10px;
-    top: 15px;
-    width: 40px;
-    height: 40px;
-    z-index: 100;
+    position: fixed !important;
+    left: 10px !important;
+    top: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+    z-index: 100 !important;
     cursor: pointer;
     font-size: 22px;
     justify-content: center;
@@ -70,33 +73,38 @@
     transform: scale(0.95);
   }
 
-  /* 搜索框适配 - 缩小并移到第二行 */
+  /* 搜索框适配 - 放在 header 内部，位于顶部工具栏下方 */
   .header-search-container {
-    position: static !important;
-    margin: 5px 10px 5px 10px !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 10px !important;
+    margin-left: 10px !important;
     width: calc(100% - 20px) !important;
     max-width: none !important;
-    order: 2;
   }
 
-  /* 设置图标区域 - 移到顶部右侧 */
+  /* 设置图标区域 - 固定在顶部右侧 */
   .setting-icon-parrent {
     position: fixed !important;
     top: 10px !important;
     right: 10px !important;
+    left: auto !important;
     margin: 0 !important;
-    height: auto !important;
+    margin-left: 0 !important;
+    height: 40px !important;
     display: flex !important;
     flex-direction: row !important;
     z-index: 99 !important;
-    order: 1;
   }
 
   .setting-icon-container {
     margin-left: 5px !important;
+    margin-right: 0 !important;
     width: 40px !important;
     height: 40px !important;
     font-size: 20px !important;
+    line-height: 40px !important;
   }
 
   .header-sort-icon {
@@ -113,10 +121,12 @@
     right: 10px !important;
     bottom: 20px !important;
     top: auto !important;
+    left: auto !important;
     width: 110px !important;
     height: 40px !important;
     font-size: 13px !important;
-    z-index: 98;
+    z-index: 98 !important;
+    margin: 0 !important;
   }
 
   /* Pro 版本提示 */
@@ -138,8 +148,8 @@
     width: 100% !important;
     padding: 0 10px;
     box-sizing: border-box;
-    top: 105px !important;
-    height: calc(100% - 150px) !important;
+    top: 115px !important;
+    height: calc(100% - 160px) !important;
   }
 
   .book-list-header {
@@ -168,7 +178,7 @@
   .card-list-container-parent {
     left: 0 !important;
     width: 100% !important;
-    top: 105px !important;
+    top: 115px !important;
   }
 
   .card-list-item {
@@ -260,6 +270,169 @@
     width: 35px !important;
     height: 35px !important;
     opacity: 0.4 !important;
+  }
+
+  /* ============================================
+     登录页面适配
+     ============================================ */
+  
+  /* 登录页面容器 - 竖屏布局 */
+  .login-container {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+
+  /* 背景图容器 - 固定在顶部 */
+  .login-cover-container {
+    width: 100% !important;
+    height: 35vh !important;
+    min-height: 200px !important;
+    position: relative !important;
+  }
+
+  /* 背景图 - 适配竖屏 */
+  .login-cover-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center bottom !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+
+  /* 内容区域 - 占满剩余空间 */
+  .login-content-container {
+    width: 100% !important;
+    height: 65vh !important;
+    min-height: 400px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Logo 调整 */
+  .login-logo-img {
+    width: 80px !important;
+    top: 15px !important;
+    left: 15px !important;
+    z-index: 10 !important;
+  }
+
+  /* 关闭按钮调整 */
+  .login-close-container {
+    top: 15px !important;
+    right: 15px !important;
+    z-index: 10 !important;
+  }
+
+  /* 插图调整 */
+  .login-content-illustration {
+    width: 60px !important;
+    margin-left: 20px !important;
+    margin-top: 20px !important;
+  }
+
+  /* 标题调整 */
+  .login-title {
+    font-size: 22px !important;
+    line-height: 30px !important;
+    margin: 15px 20px !important;
+  }
+
+  /* 副标题调整 */
+  .login-subtitle {
+    font-size: 15px !important;
+    line-height: 22px !important;
+    margin: 0 20px 15px 20px !important;
+  }
+
+  /* 选项容器 */
+  .login-option-container,
+  .login-region-container,
+  .login-input-container {
+    width: 90% !important;
+    margin-left: 5% !important;
+  }
+
+  /* 同步选项网格 */
+  .login-sync-container {
+    width: 95% !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-gap: 8px !important;
+    height: auto !important;
+    max-height: 45vh !important;
+    margin-top: 0 !important;
+  }
+
+  /* 同步选项卡片 */
+  .login-sync-box {
+    width: 100% !important;
+    height: 80px !important;
+  }
+
+  /* 下一步按钮 */
+  .login-next-button {
+    position: relative !important;
+    bottom: auto !important;
+    right: auto !important;
+    margin: 20px auto !important;
+  }
+
+  /* 条款文字 */
+  .login-term {
+    width: 90% !important;
+    padding: 10px 5% !important;
+  }
+
+  /* 二维码图片 */
+  .login-mobile-qr {
+    width: 200px !important;
+  }
+
+  .login-mobile-container {
+    height: 50% !important;
+  }
+
+  /* 选项框 */
+  .login-option-box {
+    height: auto !important;
+    min-height: 200px !important;
+    padding-bottom: 80px !important;
+  }
+
+  /* 空页面适配 */
+  .empty-page-container {
+    left: 0 !important;
+    width: 100% !important;
+    top: 115px !important;
+    height: calc(100vh - 115px) !important;
+  }
+
+  .empty-illustration-container {
+    width: 100% !important;
+    height: 250px !important;
+  }
+
+  .empty-page-illustration {
+    height: 100% !important;
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+
+  .empty-page-info-container {
+    left: 15px !important;
+    top: 20px !important;
+    right: 15px !important;
+  }
+
+  .empty-page-info-main {
+    font-size: 22px !important;
+    line-height: 32px !important;
+  }
+
+  .empty-page-info-sub {
+    width: 100% !important;
+    font-size: 16px !important;
+    line-height: 24px !important;
   }
 }
 

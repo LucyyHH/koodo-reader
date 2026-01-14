@@ -225,3 +225,18 @@
   cursor: pointer;
   width: 80px;
 }
+
+/* 移动端适配 - 防止弹窗闪现 */
+@media screen and (max-width: 768px) {
+  .backup-page-container {
+    width: 95vw;
+    max-width: none;
+    left: 2.5vw;
+    right: 2.5vw;
+    height: auto;
+    min-height: 280px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: none;
+  }
+}

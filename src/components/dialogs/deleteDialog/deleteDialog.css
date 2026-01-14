@@ -63,3 +63,14 @@
   right: 25px;
   cursor: pointer;
 }
+
+/* 移动端适配 - 防止弹窗闪现 */
+@media screen and (max-width: 768px) {
+  .delete-dialog-container {
+    width: 90vw;
+    max-width: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: none;
+  }
+}
