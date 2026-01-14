@@ -97,15 +97,17 @@ class Manager extends React.Component<ManagerProps, ManagerState> {
           ).style.zIndex = "50";
         }}
       >
-        {/* 移动端菜单按钮 */}
-        <div
-          className="mobile-menu-btn"
-          onClick={() => {
-            this.props.handleSidebarOpen(!this.props.isSidebarOpen);
-          }}
-        >
-          <span className={this.props.isSidebarOpen ? "icon-close" : "icon-menu"}></span>
-        </div>
+        {/* 移动端菜单按钮 - 只在侧边栏关闭时显示 */}
+        {!this.props.isSidebarOpen && (
+          <div
+            className="mobile-menu-btn"
+            onClick={() => {
+              this.props.handleSidebarOpen(true);
+            }}
+          >
+            <span className="icon-menu"></span>
+          </div>
+        )}
 
         {/* 移动端侧边栏遮罩层 */}
         <div
