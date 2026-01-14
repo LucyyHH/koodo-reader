@@ -1,6 +1,18 @@
 /* 移动端响应式样式 */
 
 /* ============================================
+   默认样式 - 桌面端隐藏移动端元素
+   ============================================ */
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.sidebar-mask {
+  display: none;
+}
+
+/* ============================================
    竖屏/移动端适配 (屏幕宽度 <= 768px)
    ============================================ */
 
@@ -31,16 +43,48 @@
     position: fixed !important;
     left: 0;
     top: 0;
-    width: 240px !important;
+    width: 220px !important;
     height: 100vh !important;
     z-index: 1000;
     transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out, width 0.2s ease-in-out;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 折叠状态 - 只显示图标 */
+  .sidebar.sidebar-collapsed {
+    width: 70px !important;
   }
 
   .sidebar.sidebar-open {
     transform: translateX(0);
+  }
+
+  /* 折叠状态下的菜单容器宽度 */
+  .sidebar.sidebar-collapsed .side-menu-container-parent {
+    width: 70px !important;
+  }
+
+  /* 折叠状态下隐藏文字 */
+  .sidebar.sidebar-collapsed .side-menu-selector > span:last-child {
+    display: none !important;
+  }
+
+  /* 折叠状态下隐藏书架相关 */
+  .sidebar.sidebar-collapsed .side-shelf-title-container,
+  .sidebar.sidebar-collapsed .side-shelf-container,
+  .sidebar.sidebar-collapsed .logo {
+    display: none !important;
+  }
+
+  /* 折叠状态下调整菜单项 */
+  .sidebar.sidebar-collapsed .side-menu-item {
+    width: 50px !important;
+    margin-left: 5px !important;
+  }
+
+  .sidebar.sidebar-collapsed .side-menu-icon {
+    margin-left: 10px !important;
   }
 
   /* 侧边栏遮罩层 */
@@ -81,7 +125,7 @@
     top: 10px !important;
     width: 40px !important;
     height: 40px !important;
-    z-index: 100 !important;
+    z-index: 1001 !important;
     cursor: pointer;
     font-size: 22px;
     justify-content: center;
@@ -92,6 +136,14 @@
 
   .mobile-menu-btn:active {
     transform: scale(0.95);
+  }
+
+  /* 侧边栏内的折叠按钮 - 控制展开/收起 */
+  .sidebar-list-icon {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 10 !important;
   }
 
   /* 搜索框适配 - 放在 header 内部，位于顶部工具栏下方 */
@@ -929,39 +981,41 @@
    ============================================ */
 
 @media screen and (min-width: 769px) and (max-width: 1024px) {
+  /* 平板端 - 侧边栏默认展开 */
   .sidebar {
+    width: 190px;
+    transition: width 0.2s ease-in-out;
+  }
+
+  /* 平板端 - 侧边栏折叠状态 */
+  .sidebar.sidebar-collapsed {
     width: 60px !important;
   }
 
-  .header {
-    margin-left: 60px !important;
-  }
-
-  .logo {
+  .sidebar.sidebar-collapsed .logo {
     display: none !important;
   }
 
-  .side-menu-container-parent {
+  .sidebar.sidebar-collapsed .side-menu-container-parent {
     width: 60px !important;
   }
 
-  .side-menu-item span:not(.icon-home):not(.icon-favorite):not(.icon-digest):not(.icon-shelf):not(.icon-cloud):not(.icon-bookshelf-line) {
+  .sidebar.sidebar-collapsed .side-menu-selector > span:last-child {
     display: none !important;
   }
 
-  .side-shelf-title-container,
-  .side-shelf-container {
+  .sidebar.sidebar-collapsed .side-shelf-title-container,
+  .sidebar.sidebar-collapsed .side-shelf-container {
     display: none !important;
   }
 
-  .book-list-container-parent {
-    left: 60px !important;
-    width: calc(100% - 60px) !important;
+  .sidebar.sidebar-collapsed .side-menu-item {
+    width: 50px !important;
+    margin-left: 5px !important;
   }
 
-  .book-list-header {
-    left: 60px !important;
-    width: calc(100% - 60px) !important;
+  .sidebar.sidebar-collapsed .side-menu-icon {
+    margin-left: 10px !important;
   }
 
   /* 平板端对话框微调 */

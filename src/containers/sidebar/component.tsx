@@ -243,7 +243,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     };
     return (
       <>
-        <div className={`sidebar ${this.props.isSidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className={`sidebar ${this.props.isSidebarOpen ? 'sidebar-open' : ''} ${this.state.isCollapsed ? 'sidebar-collapsed' : ''}`}>
           <div
             className="sidebar-list-icon"
             onClick={() => {
