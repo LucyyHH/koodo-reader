@@ -77,14 +77,32 @@
     display: none !important;
   }
 
-  /* 折叠状态下调整菜单项 */
+  /* 折叠状态下调整菜单项 - 居中对齐 */
   .sidebar.sidebar-collapsed .side-menu-item {
-    width: 50px !important;
-    margin-left: 5px !important;
+    width: 70px !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .sidebar.sidebar-collapsed .side-menu-selector {
+    width: auto !important;
+    justify-content: center !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin-left: 10px !important;
+    margin: 0 !important;
+    width: 40px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  /* 折叠状态下菜单按钮居中 */
+  .sidebar.sidebar-collapsed .sidebar-list-icon {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding-left: 0 !important;
   }
 
   /* 侧边栏遮罩层 */
@@ -1009,13 +1027,31 @@
     display: none !important;
   }
 
+  /* 折叠状态下调整菜单项 - 居中对齐 */
   .sidebar.sidebar-collapsed .side-menu-item {
-    width: 50px !important;
-    margin-left: 5px !important;
+    width: 60px !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .sidebar.sidebar-collapsed .side-menu-selector {
+    width: auto !important;
+    justify-content: center !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin-left: 10px !important;
+    margin: 0 !important;
+    width: 40px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-list-icon {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding-left: 0 !important;
   }
 
   /* 平板端对话框微调 */
