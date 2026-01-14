@@ -229,14 +229,14 @@
 /* 移动端适配 - 防止弹窗闪现 */
 @media screen and (max-width: 768px) {
   .backup-page-container {
-    width: 95vw;
-    max-width: none;
-    left: 2.5vw;
-    right: 2.5vw;
+    width: 90vw;
+    max-width: 400px;
+    left: 50%;
     height: auto;
-    min-height: 280px;
+    min-height: 250px;
+    max-height: 350px;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%);
     animation: none;
   }
 }

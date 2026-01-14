@@ -28,6 +28,8 @@ class AboutDialog extends React.Component<AboutDialogProps, AboutDialogState> {
   };
 
   render() {
+    // 移动端不使用内联样式，让 CSS 媒体查询生效
+    const isMobile = window.innerWidth <= 768;
     return (
       <>
         <div
@@ -38,7 +40,7 @@ class AboutDialog extends React.Component<AboutDialogProps, AboutDialogState> {
           onMouseEnter={() => {
             this.props.handleAbout(true);
           }}
-          style={{ left: "480px" }}
+          style={isMobile ? {} : { left: "480px" }}
         >
           <ul className="sort-by-category">
             <li
