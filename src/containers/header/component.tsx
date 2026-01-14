@@ -120,22 +120,27 @@ class Header extends React.Component<HeaderProps, HeaderState> {
       });
     } else {
       upgradeConfig();
-      const status = await LocalFileManager.getPermissionStatus();
-      if (
-        !ConfigService.getReaderConfig("isUseLocal") &&
-        LocalFileManager.isSupported()
-      ) {
-        this.props.handleLocalFileDialog(true);
-      } else if (
-        ConfigService.getReaderConfig("isUseLocal") === "yes" &&
-        !status.directoryName
-      ) {
-        this.props.handleLocalFileDialog(true);
-      } else if (
-        ConfigService.getReaderConfig("isUseLocal") === "yes" &&
-        (status.needsReauthorization || !status.hasAccess)
-      ) {
-        this.props.handleLocalFileDialog(true);
+      // 在 Capacitor (Android/iOS) 环境下，跳过本地文件夹授权对话框
+      // 因为 Web File System Access API 在移动端 WebView 中不支持
+      if (!LocalFileManager.isSupported()) {
+        console.info("Local file access not supported in this environment");
+      } else {
+        const status = await LocalFileManager.getPermissionStatus();
+        if (
+          !ConfigService.getReaderConfig("isUseLocal")
+        ) {
+          this.props.handleLocalFileDialog(true);
+        } else if (
+          ConfigService.getReaderConfig("isUseLocal") === "yes" &&
+          !status.directoryName
+        ) {
+          this.props.handleLocalFileDialog(true);
+        } else if (
+          ConfigService.getReaderConfig("isUseLocal") === "yes" &&
+          (status.needsReauthorization || !status.hasAccess)
+        ) {
+          this.props.handleLocalFileDialog(true);
+        }
       }
     }
     window.addEventListener("resize", () => {

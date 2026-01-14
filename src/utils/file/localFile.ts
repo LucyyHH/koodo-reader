@@ -48,8 +48,17 @@ export class LocalFileManager {
   private static directoryHandle: FileSystemDirectoryHandle | null = null;
   private static readonly STORAGE_KEY = "koodo_directory_handle";
 
+  // 检查是否在 Capacitor/移动端环境中运行
+  static isCapacitor(): boolean {
+    return !!(window as any).Capacitor;
+  }
+
   // 检查浏览器是否支持 File System Access API
   static isSupported(): boolean {
+    // 在 Capacitor (Android/iOS) 环境中，不支持 Web File System Access API
+    if (this.isCapacitor()) {
+      return false;
+    }
     return "showDirectoryPicker" in window;
   }
 

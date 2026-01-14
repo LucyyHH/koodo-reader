@@ -32,3 +32,15 @@
   height: 0px;
   margin: 6px 0px;
 }
+
+/* 移动端适配 - 防止闪现 */
+@media screen and (max-width: 768px) {
+  .sort-dialog-container {
+    position: fixed !important;
+    left: auto !important;
+    right: 10px !important;
+    top: 60px !important;
+    animation: none !important;
+    z-index: 1000 !important;
+  }
+}
