@@ -21,6 +21,7 @@ import {
   handleReadingState,
   handleShowPopupNote,
   handleSortShelfDialog,
+  handleSidebarOpen,
 } from "../../store/actions";
 import { withTranslation } from "react-i18next";
 
@@ -50,6 +51,7 @@ const mapStateToProps = (state: stateType) => {
     isOpenImportDialog: state.backupPage.isOpenImportDialog,
     isOpenSortShelfDialog: state.backupPage.isOpenSortShelfDialog,
     isOpenLocalFileDialog: state.backupPage.isOpenLocalFileDialog,
+    isSidebarOpen: state.sidebar.isSidebarOpen,
   };
 };
 const actionCreator = {
@@ -74,6 +76,7 @@ const actionCreator = {
   handleImportDialog,
   handleReadingState,
   handleShowPopupNote,
+  handleSidebarOpen,
 };
 export default connect(
   mapStateToProps,

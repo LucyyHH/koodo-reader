@@ -1,0 +1,362 @@
+/* 移动端响应式样式 */
+
+/* ============================================
+   竖屏/移动端适配 (屏幕宽度 <= 768px)
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  /* 侧边栏 - 抽屉式 */
+  .sidebar {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    width: 240px !important;
+    height: 100vh !important;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* 侧边栏遮罩层 */
+  .sidebar-mask {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .sidebar-mask.sidebar-mask-open {
+    display: block;
+  }
+
+  /* Header 适配 */
+  .header {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-left: 60px;
+  }
+
+  /* 移动端菜单按钮 */
+  .mobile-menu-btn {
+    display: flex !important;
+    position: fixed;
+    left: 10px;
+    top: 20px;
+    width: 45px;
+    height: 45px;
+    z-index: 100;
+    cursor: pointer;
+    font-size: 24px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+
+  .mobile-menu-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* 搜索框适配 */
+  .header-search-container {
+    margin-left: 10px !important;
+    width: calc(100% - 180px) !important;
+    max-width: 300px;
+  }
+
+  /* 设置图标区域 */
+  .setting-icon-parrent {
+    margin-left: 10px !important;
+    position: relative !important;
+    top: auto !important;
+  }
+
+  /* 导入按钮 */
+  .import-from-cloud {
+    right: 10px !important;
+    top: 20px !important;
+    width: 100px !important;
+    font-size: 13px !important;
+  }
+
+  /* 书籍列表容器 */
+  .book-list-container-parent {
+    left: 0 !important;
+    width: 100% !important;
+    padding: 0 10px;
+    box-sizing: border-box;
+    top: 70px !important;
+    height: calc(100% - 115px) !important;
+  }
+
+  .book-list-header {
+    left: 0 !important;
+    width: 100% !important;
+    padding: 0 10px;
+    box-sizing: border-box;
+  }
+
+  /* 书籍卡片网格 */
+  .book-list-container {
+    justify-content: center;
+  }
+
+  /* 书籍封面 */
+  .book-item-cover {
+    width: 90px !important;
+    height: 120px !important;
+  }
+
+  .book-list-item-container {
+    margin: 8px !important;
+  }
+
+  /* 卡片列表容器 */
+  .card-list-container-parent {
+    left: 0 !important;
+    width: 100% !important;
+    top: 70px !important;
+  }
+
+  .card-list-item {
+    min-width: 280px !important;
+    width: calc(100vw - 30px) !important;
+  }
+
+  /* 列表模式书籍项适配 */
+  .book-item-list-subtitle {
+    width: calc(100% - 80px) !important;
+  }
+
+  .book-item-list-author,
+  .book-item-list-percentage {
+    display: none !important;
+  }
+
+  /* 隐藏一些桌面端元素 */
+  .download-demo-book,
+  .only-local-container {
+    display: none !important;
+  }
+
+  /* Logo */
+  .logo {
+    width: 100px !important;
+    left: 50px !important;
+  }
+
+  /* 侧边栏菜单容器 */
+  .side-menu-container-parent {
+    width: 100% !important;
+    top: 70px !important;
+  }
+}
+
+/* ============================================
+   阅读器页面适配
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  /* 阅读器操作面板 */
+  .operation-panel-container {
+    width: calc(100vw - 20px) !important;
+    left: 10px !important;
+    top: 0 !important;
+  }
+
+  /* 进度面板 */
+  .progress-panel-container {
+    width: calc(100vw - 20px) !important;
+    left: 10px !important;
+  }
+
+  /* 导航面板 (目录) */
+  .navigation-panel-container {
+    width: 85vw !important;
+    max-width: 300px;
+  }
+
+  /* 设置面板 */
+  .setting-panel-container {
+    width: 85vw !important;
+    max-width: 300px;
+  }
+
+  /* 翻页区域 */
+  .left-panel,
+  .right-panel {
+    width: 50px !important;
+    opacity: 0.3 !important;
+  }
+
+  .top-panel,
+  .bottom-panel {
+    width: 80% !important;
+    left: 10% !important;
+  }
+
+  /* 阅读区域 */
+  .view-area-page {
+    top: 10px !important;
+    bottom: 10px !important;
+  }
+
+  /* 章节切换按钮 */
+  .previous-chapter-single-container,
+  .next-chapter-single-container {
+    width: 35px !important;
+    height: 35px !important;
+    opacity: 0.4 !important;
+  }
+}
+
+/* ============================================
+   弹窗/对话框适配
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+  /* 通用对话框 */
+  .dialog-container,
+  .popup-dialog-container {
+    width: 95vw !important;
+    max-width: none !important;
+    margin: 0 auto;
+  }
+
+  /* 删除确认框 */
+  .delete-dialog-container {
+    width: 90vw !important;
+  }
+
+  /* 设置对话框 */
+  .setting-dialog-container {
+    width: 95vw !important;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* 备份对话框 */
+  .backup-dialog-container {
+    width: 95vw !important;
+  }
+
+  /* 详情对话框 */
+  .detail-dialog-container {
+    width: 95vw !important;
+  }
+
+  /* vex 弹窗 */
+  .vex-content {
+    width: 90vw !important;
+    max-width: none !important;
+  }
+
+  .custom-confirm-width {
+    width: 90vw !important;
+    max-width: none !important;
+  }
+}
+
+/* ============================================
+   平板适配 (768px - 1024px)
+   ============================================ */
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 60px !important;
+  }
+
+  .header {
+    margin-left: 60px !important;
+  }
+
+  .logo {
+    display: none !important;
+  }
+
+  .side-menu-container-parent {
+    width: 60px !important;
+  }
+
+  .side-menu-item span:not(.icon-home):not(.icon-favorite):not(.icon-digest):not(.icon-shelf):not(.icon-cloud):not(.icon-bookshelf-line) {
+    display: none !important;
+  }
+
+  .side-shelf-title-container,
+  .side-shelf-container {
+    display: none !important;
+  }
+
+  .book-list-container-parent {
+    margin-left: 60px !important;
+  }
+}
+
+/* ============================================
+   桌面端隐藏移动端元素
+   ============================================ */
+
+@media screen and (min-width: 769px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  .sidebar-mask {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   触摸设备优化
+   ============================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* 增大点击区域 */
+  .side-menu-item,
+  .setting-icon-container,
+  .book-item-cover {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 禁用 hover 效果 */
+  .side-menu-hover-container {
+    display: none !important;
+  }
+
+  /* 滚动优化 */
+  .book-list-container-parent,
+  .navigation-body,
+  .setting-dialog-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+}
+
+/* ============================================
+   安全区域适配 (刘海屏等)
+   ============================================ */
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .sidebar {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .progress-panel-container {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

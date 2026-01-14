@@ -53,6 +53,10 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     this.props.handleShelf("");
     this.props.handleSearch(false);
     this.props.handleSortDisplay(false);
+    // 移动端点击菜单后自动关闭侧边栏
+    if (window.innerWidth <= 768) {
+      this.props.handleSidebarOpen(false);
+    }
   };
   handleHover = (mode: string) => {
     this.setState({ hoverMode: mode });
@@ -239,7 +243,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
     };
     return (
       <>
-        <div className="sidebar">
+        <div className={`sidebar ${this.props.isSidebarOpen ? 'sidebar-open' : ''}`}>
           <div
             className="sidebar-list-icon"
             onClick={() => {

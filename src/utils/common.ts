@@ -1,6 +1,33 @@
 import Plugin from "../models/Plugin";
-import { isElectron } from "react-device-detect";
+import { isElectron, isMobile as isMobileDevice } from "react-device-detect";
 import SparkMD5 from "spark-md5";
+
+// 移动端检测工具
+export const isMobile = (): boolean => {
+  // 检测是否为移动设备或窄屏幕
+  return isMobileDevice || window.innerWidth <= 768;
+};
+
+export const isPortrait = (): boolean => {
+  // 检测是否为竖屏模式
+  return window.innerHeight > window.innerWidth;
+};
+
+export const isMobileView = (): boolean => {
+  // 综合判断：移动设备 或 窄屏幕 或 竖屏模式下的窄屏
+  return isMobile() || (isPortrait() && window.innerWidth <= 1024);
+};
+
+// 获取当前视口信息
+export const getViewportInfo = () => {
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    isMobile: isMobile(),
+    isPortrait: isPortrait(),
+    isMobileView: isMobileView(),
+  };
+};
 import {
   BookHelper,
   CommonTool,

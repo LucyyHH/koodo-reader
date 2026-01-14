@@ -6,6 +6,7 @@ export interface SidebarProps extends RouteComponentProps<any> {
   shelfTitle: string;
   isAuthed: boolean;
   isOpenSortShelfDialog: boolean;
+  isSidebarOpen: boolean;
   handleMode: (mode: string) => void;
   handleSortShelfDialog: (isOpenSortShelfDialog: boolean) => void;
   handleSearch: (isSearch: boolean) => void;
@@ -13,6 +14,7 @@ export interface SidebarProps extends RouteComponentProps<any> {
   handleSortDisplay: (isSortDisplay: boolean) => void;
   handleSelectBook: (isSelectBook: boolean) => void;
   handleShelf: (shelfTitle: string) => void;
+  handleSidebarOpen: (isSidebarOpen: boolean) => void;
   t: (title: string) => string;
 }
 

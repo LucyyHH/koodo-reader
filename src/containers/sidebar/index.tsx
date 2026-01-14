@@ -6,6 +6,7 @@ import {
   handleSelectBook,
   handleShelf,
   handleSortShelfDialog,
+  handleSidebarOpen,
 } from "../../store/actions";
 import { connect } from "react-redux";
 import { stateType } from "../../store";
@@ -20,6 +21,7 @@ const mapStateToProps = (state: stateType) => {
     shelfTitle: state.sidebar.shelfTitle,
     isAuthed: state.manager.isAuthed,
     isOpenSortShelfDialog: state.backupPage.isOpenSortShelfDialog,
+    isSidebarOpen: state.sidebar.isSidebarOpen,
   };
 };
 const actionCreator = {
@@ -30,6 +32,7 @@ const actionCreator = {
   handleSelectBook,
   handleShelf,
   handleSortShelfDialog,
+  handleSidebarOpen,
 };
 
 export default connect(

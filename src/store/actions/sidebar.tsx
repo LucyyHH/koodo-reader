@@ -7,3 +7,6 @@ export function handleCollapse(isCollapsed: boolean) {
 export function handleMode(mode: string) {
   return { type: "HANDLE_MODE", payload: mode };
 }
+export function handleSidebarOpen(isSidebarOpen: boolean) {
+  return { type: "HANDLE_SIDEBAR_OPEN", payload: isSidebarOpen };
+}

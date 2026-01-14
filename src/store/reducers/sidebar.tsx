@@ -3,6 +3,7 @@ const initState = {
   mode: "home",
   shelfTitle: "",
   isCollapsed: ConfigService.getReaderConfig("isCollapsed") === "yes",
+  isSidebarOpen: false,
 };
 export function sidebar(
   state = initState,
@@ -23,6 +24,11 @@ export function sidebar(
       return {
         ...state,
         isCollapsed: action.payload,
+      };
+    case "HANDLE_SIDEBAR_OPEN":
+      return {
+        ...state,
+        isSidebarOpen: action.payload,
       };
     default:
       return state;

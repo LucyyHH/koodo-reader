@@ -97,6 +97,24 @@ class Manager extends React.Component<ManagerProps, ManagerState> {
           ).style.zIndex = "50";
         }}
       >
+        {/* 移动端菜单按钮 */}
+        <div
+          className="mobile-menu-btn"
+          onClick={() => {
+            this.props.handleSidebarOpen(!this.props.isSidebarOpen);
+          }}
+        >
+          <span className={this.props.isSidebarOpen ? "icon-close" : "icon-menu"}></span>
+        </div>
+
+        {/* 移动端侧边栏遮罩层 */}
+        <div
+          className={`sidebar-mask ${this.props.isSidebarOpen ? 'sidebar-mask-open' : ''}`}
+          onClick={() => {
+            this.props.handleSidebarOpen(false);
+          }}
+        ></div>
+
         <Tooltip id="my-tooltip" style={{ zIndex: 25 }} />
         {this.props.isShowPopupNote && (
           <div
