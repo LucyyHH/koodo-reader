@@ -77,6 +77,16 @@
     display: none !important;
   }
 
+  /* 移动端隐藏侧边栏内部的折叠按钮 - 使用顶部菜单按钮代替 */
+  .sidebar .sidebar-list-icon {
+    display: none !important;
+  }
+
+  /* 调整菜单容器顶部位置 - 因为隐藏了折叠按钮 */
+  .sidebar .side-menu-container-parent {
+    top: 20px !important;
+  }
+
   /* 折叠状态下调整菜单项 - 居中对齐 */
   .sidebar.sidebar-collapsed .side-menu-container-parent {
     width: 70px !important;
@@ -85,29 +95,24 @@
 
   .sidebar.sidebar-collapsed .side-menu-container {
     padding-right: 0 !important;
+    width: 70px !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-item {
-    width: 100% !important;
+    width: 70px !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-selector {
-    width: 100% !important;
+    width: 70px !important;
     justify-content: center !important;
     padding-left: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 9px 0 7px 0 !important;
-  }
-
-  /* 折叠状态下菜单按钮居中 - 与下方图标对齐 */
-  .sidebar.sidebar-collapsed .sidebar-list-icon {
-    left: 12px !important;
-    padding-left: 0 !important;
-    width: 45px !important;
+    margin: 9px auto 7px auto !important;
+    width: 30px !important;
   }
 
   /* 侧边栏遮罩层 */
@@ -1040,29 +1045,31 @@
 
   .sidebar.sidebar-collapsed .side-menu-container {
     padding-right: 0 !important;
+    width: 60px !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-item {
-    width: 100% !important;
+    width: 60px !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-selector {
-    width: 100% !important;
+    width: 60px !important;
     justify-content: center !important;
     padding-left: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 9px 0 7px 0 !important;
+    margin: 9px auto 7px auto !important;
+    width: 30px !important;
   }
 
-  /* 折叠状态下菜单按钮位置 - 与下方图标对齐 */
+  /* 折叠状态下菜单按钮居中 */
   .sidebar.sidebar-collapsed .sidebar-list-icon {
-    left: 8px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     padding-left: 0 !important;
-    width: 45px !important;
   }
 
   /* 平板端对话框微调 */
