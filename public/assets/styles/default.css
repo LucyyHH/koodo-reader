@@ -3,6 +3,9 @@ body {
   background: rgba(255, 255, 255, 1);
   color: rgba(75, 75, 75, 1);
 }
+.sidebar {
+  background: rgba(255, 255, 255, 1);
+}
 a {
   color: blue;
   text-decoration: none;
