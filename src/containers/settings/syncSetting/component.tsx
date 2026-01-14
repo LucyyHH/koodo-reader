@@ -315,9 +315,12 @@ class SyncSetting extends React.Component<SettingInfoProps, SettingInfoState> {
                       if (!timer) {
                         return;
                       }
+                      // 降低并发数以避免浏览器内存溢出，特别是在大量书籍同步时
+                      // 桌面端可以使用较高的并发数，Web端使用较低的并发数
+                      const concurrentLimit = isElectron ? 10 : 3;
                       await SyncHelper.runTasksWithLimit(
                         downloadTasks,
-                        99,
+                        concurrentLimit,
                         ConfigService.getItem("defaultSyncOption")
                       );
                       clearInterval(timer);

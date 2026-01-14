@@ -486,9 +486,12 @@ class Header extends React.Component<HeaderProps, HeaderState> {
         BookUtil,
         CoverUtil
       );
+      // 降低并发数以避免浏览器内存溢出，特别是在大量书籍同步时
+      // 桌面端可以使用较高的并发数，Web端使用较低的并发数
+      const concurrentLimit = isElectron ? 10 : 3;
       await SyncHelper.runTasksWithLimit(
         tasks,
-        99,
+        concurrentLimit,
         ConfigService.getItem("defaultSyncOption")
       );
 
