@@ -42,11 +42,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK (Debug)
-        run: |
-          cd android
-          ./gradlew assembleDebug
-
       - name: Setup Keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
@@ -61,25 +56,21 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           KEYSTORE_ALIAS_PASSWORD: ${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
 
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Koodo-Reader-Android-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Rename APK
+        run: |
+          mv android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/Koodo-Reader-android.apk
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Koodo-Reader-Android-Release-APK
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: Koodo-Reader-android-apk
+          path: android/app/build/outputs/apk/release/Koodo-Reader-android.apk
 
       # 发布到 GitHub Releases（当推送 tag 时）
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            android/app/build/outputs/apk/debug/app-debug.apk
-            android/app/build/outputs/apk/release/app-release.apk
+          files: android/app/build/outputs/apk/release/Koodo-Reader-android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
