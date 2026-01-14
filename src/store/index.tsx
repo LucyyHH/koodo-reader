@@ -117,6 +117,7 @@ export type stateType = {
     mode: string;
     shelfTitle: string;
     isCollapsed: boolean;
+    isSidebarOpen: boolean;
   };
   viewArea: {
     selection: string;
