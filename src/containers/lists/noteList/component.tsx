@@ -147,16 +147,7 @@ class NoteList extends React.Component<NoteListProps, NoteListState> {
         </div>
 
         {noteProps.cards.length === 0 ? (
-          <div
-            style={{
-              position: "fixed",
-              left: 0,
-              top: 0,
-              width: "100%",
-              height: "100%",
-              zIndex: -1,
-            }}
-          >
+          <div className="note-list-empty-container">
             {this.state.tag.length === 0 && <Empty />}
           </div>
         ) : (
