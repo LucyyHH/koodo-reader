@@ -252,6 +252,34 @@ class DatabaseService {
       return records.map((record) => record.key);
     }
   }
+  // 批量获取多条记录
+  static async getRecordsByKeys(
+    keys: string[],
+    dbName: string
+  ): Promise<any[]> {
+    if (keys.length === 0) return [];
+    if (isElectron) {
+      // 使用 custom-database-command 执行自定义 SQL
+      const placeholders = keys.map(() => "?").join(",");
+      const query = `SELECT * FROM ${dbName} WHERE key IN (${placeholders})`;
+      let records = await window
+        .require("electron")
+        .ipcRenderer.invoke("custom-database-command", {
+          query: query,
+          dbName: dbName,
+          storagePath: getStorageLocation(),
+          data: keys,
+          executeType: "all",
+        });
+      // 保持原始顺序
+      const recordMap = new Map(records.map((r: any) => [r.key, r]));
+      return keys.map((key) => recordMap.get(key)).filter(Boolean);
+    } else {
+      let records = await this.getAllRecords(dbName);
+      const recordMap = new Map(records.map((r: any) => [r.key, r]));
+      return keys.map((key) => recordMap.get(key)).filter(Boolean);
+    }
+  }
   static async getRecordsByBookKey(
     bookKey: string,
     dbName: string

@@ -143,16 +143,9 @@ class BookList extends React.Component<BookListProps, BookListState> {
     const { books } = this.handleBooks();
     const displayedBooks = books.slice(0, this.state.displayedBooksCount);
 
-    const fullBooksData: Book[] = [];
-    for (let i = 0; i < displayedBooks.length; i++) {
-      const book = await DatabaseService.getRecord(
-        displayedBooks[i].key,
-        "books"
-      );
-      if (book) {
-        fullBooksData.push(book);
-      }
-    }
+    // 使用批量获取提高性能
+    const keys = displayedBooks.map((book: any) => book.key);
+    const fullBooksData = await DatabaseService.getRecordsByKeys(keys, "books");
 
     this.setState({ fullBooksData });
   };
@@ -203,28 +196,44 @@ class BookList extends React.Component<BookListProps, BookListState> {
 
     this.setState({ isLoadingMore: true });
     this.props.handleLoadMore(true);
-    // 异步加载更多书籍数据
+
+    // 搜索模式下，数据已经是完整的，只需更新显示数量
+    if (this.props.isSearch) {
+      setTimeout(() => {
+        const newDisplayedBooksCount = Math.min(
+          displayedBooksCount + getBookCountPerPage(),
+          books.length
+        );
+        this.setState({
+          displayedBooksCount: newDisplayedBooksCount,
+          isLoadingMore: false,
+        });
+        this.props.handleLoadMore(false);
+      }, 50);
+      return;
+    }
+
+    // 非搜索模式，异步加载更多书籍数据
     setTimeout(async () => {
       const newDisplayedBooksCount = Math.min(
         displayedBooksCount + getBookCountPerPage(),
         books.length
       );
 
-      // 加载新增的书籍数据
+      // 使用批量获取加载新增的书籍数据
       const newBooks = books.slice(displayedBooksCount, newDisplayedBooksCount);
-      const newFullBooksData: Book[] = [];
-      for (let i = 0; i < newBooks.length; i++) {
-        const book = await DatabaseService.getRecord(newBooks[i].key, "books");
-        if (book) {
-          newFullBooksData.push(book);
-        }
-      }
+      const keys = newBooks.map((book: any) => book.key);
+      const newFullBooksData = await DatabaseService.getRecordsByKeys(
+        keys,
+        "books"
+      );
 
       this.setState({
         displayedBooksCount: newDisplayedBooksCount,
         isLoadingMore: false,
         fullBooksData: [...this.state.fullBooksData, ...newFullBooksData],
       });
+      this.props.handleLoadMore(false);
     }, 100);
   };
 
@@ -276,9 +285,9 @@ class BookList extends React.Component<BookListProps, BookListState> {
       currentBookMode = bookMode;
     }
 
-    // 使用状态中已加载的完整书籍数据
+    // 搜索结果也进行分批显示
     const displayedBooks = this.props.isSearch
-      ? books
+      ? books.slice(0, this.state.displayedBooksCount)
       : this.state.fullBooksData;
 
     return displayedBooks.map((item: BookModel, index: number) => {
