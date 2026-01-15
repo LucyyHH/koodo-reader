@@ -92,6 +92,11 @@
     display: none !important;
   }
 
+  /* 折叠状态下让选中背景可见 */
+  .sidebar.sidebar-collapsed .side-menu-item {
+    overflow: visible !important;
+  }
+
   /* 侧边栏遮罩层 */
   .sidebar-mask {
     display: none;
