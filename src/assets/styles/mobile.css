@@ -195,10 +195,22 @@
 
   .header-sort-icon {
     font-size: 22px !important;
+    line-height: 1 !important;
+    display: block !important;
   }
 
   .header-archive-icon {
-    font-size: 18px !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    display: block !important;
+  }
+
+  .setting-icon-container > span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    width: 100% !important;
   }
 
   /* 导入按钮 - 移到底部 */
