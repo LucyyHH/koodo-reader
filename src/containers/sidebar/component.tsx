@@ -110,6 +110,7 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
             onMouseLeave={() => {
               this.handleHover("");
             }}
+            style={this.props.isCollapsed ? { width: 40, marginLeft: 15 } : {}}
           >
             {this.props.mode === item.mode ? (
               <div className="side-menu-selector-container"></div>
@@ -133,6 +134,11 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                     this.props.mode === item.mode
                       ? `icon-${item.icon}  active-icon`
                       : `icon-${item.icon}`
+                  }
+                  style={
+                    this.props.isCollapsed
+                      ? { position: "relative", marginLeft: "-9px" }
+                      : {}
                   }
                 ></span>
               </div>
@@ -180,6 +186,9 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
               onMouseLeave={() => {
                 this.handleShelfHover("");
               }}
+              style={
+                this.props.isCollapsed ? { width: 40, marginLeft: 15 } : {}
+              }
             >
               {this.props.shelfTitle === item ? (
                 <div className="side-menu-selector-container"></div>
@@ -207,6 +216,11 @@ class Sidebar extends React.Component<SidebarProps, SidebarState> {
                         this.props.shelfTitle === item
                           ? `icon-bookshelf-line  active-icon sidebar-shelf-icon`
                           : `icon-bookshelf-line sidebar-shelf-icon`
+                      }
+                      style={
+                        this.props.isCollapsed
+                          ? { position: "relative", marginLeft: "-8px" }
+                          : {}
                       }
                     ></span>
                   </span>

@@ -92,51 +92,6 @@
     display: none !important;
   }
 
-  /* 侧边栏内的折叠按钮 */
-  .sidebar .sidebar-list-icon {
-    left: 10px !important;
-    top: 15px !important;
-  }
-
-  /* 折叠状态下调整菜单项 - 居中对齐 */
-  .sidebar.sidebar-collapsed .side-menu-container-parent {
-    width: 70px !important;
-    padding-left: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-container {
-    padding-right: 0 !important;
-    width: 70px !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-item {
-    width: 70px !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector {
-    width: 70px !important;
-    height: 39px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 0 auto !important;
-    width: 30px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
   /* 侧边栏遮罩层 */
   .sidebar-mask {
     display: none;
@@ -1116,14 +1071,6 @@
   .sidebar {
     position: relative !important;
   }
-
-  /* 确保侧边栏菜单按钮位置正确 */
-  .sidebar-list-icon {
-    position: absolute !important;
-    left: 10px !important;
-    top: 20px !important;
-    padding-left: 0 !important;
-  }
 }
 
 /* ============================================
@@ -1131,79 +1078,9 @@
    ============================================ */
 
 @media screen and (min-width: 769px) and (max-width: 1024px) {
-  /* 平板端 - 侧边栏默认展开 */
+  /* 平板端 - 侧边栏 */
   .sidebar {
-    width: 190px;
     position: relative !important;
-    transition: width 0.2s ease-in-out;
-  }
-
-  /* 平板端 - 侧边栏折叠状态 */
-  .sidebar.sidebar-collapsed {
-    width: 60px !important;
-  }
-
-  .sidebar.sidebar-collapsed .logo {
-    display: none !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-container-parent {
-    width: 60px !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector > span:last-child {
-    display: none !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-shelf-title-container,
-  .sidebar.sidebar-collapsed .side-shelf-container {
-    display: none !important;
-  }
-
-  /* 折叠状态下调整菜单项 - 居中对齐 */
-  .sidebar.sidebar-collapsed .side-menu-container-parent {
-    width: 60px !important;
-    padding-left: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-container {
-    padding-right: 0 !important;
-    width: 60px !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-item {
-    width: 60px !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector {
-    width: 60px !important;
-    height: 39px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 0 auto !important;
-    width: 30px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  /* 折叠状态下菜单按钮居中 */
-  .sidebar.sidebar-collapsed .sidebar-list-icon {
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    padding-left: 0 !important;
   }
 
   /* 平板端对话框微调 */
@@ -1240,72 +1117,6 @@
   /* 侧边栏需要 position: relative 来正确定位子元素 */
   .sidebar {
     position: relative !important;
-  }
-
-  /* 折叠状态 - 只显示图标 */
-  .sidebar.sidebar-collapsed {
-    width: 70px !important;
-  }
-
-  .sidebar.sidebar-collapsed .logo {
-    display: none !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-container-parent {
-    width: 70px !important;
-    padding-left: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector > span:last-child {
-    display: none !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-shelf-title-container,
-  .sidebar.sidebar-collapsed .side-shelf-container {
-    display: none !important;
-  }
-
-  /* 折叠状态下调整菜单项 - 居中对齐 */
-  .sidebar.sidebar-collapsed .side-menu-container {
-    padding-right: 0 !important;
-    width: 70px !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-item {
-    width: 70px !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    position: relative !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector {
-    width: 70px !important;
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 0 auto !important;
-    width: 30px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  .sidebar.sidebar-collapsed .side-menu-selector {
-    height: 39px !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-
-  /* 折叠状态下菜单按钮固定在左上角 */
-  .sidebar.sidebar-collapsed .sidebar-list-icon {
-    position: absolute !important;
-    left: 10px !important;
-    top: 20px !important;
   }
 }
 
