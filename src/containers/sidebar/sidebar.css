@@ -187,7 +187,6 @@
   animation: slidein 0.1s ease-in-out 0s 1;
   top: 0;
   left: 0;
-  display: none;
 }
 @keyframes slidein {
   0% {
