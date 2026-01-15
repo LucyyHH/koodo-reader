@@ -136,7 +136,7 @@
     top: 10px !important;
     width: 40px !important;
     height: 40px !important;
-    z-index: 1001 !important;
+    z-index: 999 !important;
     cursor: pointer;
     font-size: 22px;
     justify-content: center;
@@ -194,9 +194,11 @@
   }
 
   .header-sort-icon {
-    font-size: 22px !important;
+    font-size: 24px !important;
     line-height: 1 !important;
     display: block !important;
+    position: relative !important;
+    top: -1px !important;
   }
 
   .header-archive-icon {
