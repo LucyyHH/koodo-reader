@@ -6,6 +6,9 @@
 
 .mobile-menu-btn {
   display: none;
+  position: fixed;
+  left: 10px;
+  top: 10px;
 }
 
 .sidebar-mask {
@@ -26,18 +29,28 @@
     opacity: 0 !important;
   }
 
-  /* 排序和设置下拉菜单 - 固定在右上角下方，与按钮重叠避免间隙 */
+  /* 排序和设置下拉菜单 - 固定在按钮正下方 */
   .sort-dialog-container {
     position: fixed !important;
     left: auto !important;
     right: 10px !important;
-    top: 35px !important;
+    top: 50px !important;
     animation: none !important;
     z-index: 1000 !important;
     max-height: 70vh !important;
     overflow: visible !important;
-    /* 添加顶部内边距，让内容显示在按钮下方 */
-    padding-top: 20px !important;
+    padding-top: 0 !important;
+    /* 用伪元素填充按钮和弹窗之间的间隙 */
+  }
+  
+  .sort-dialog-container::before {
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: 0;
+    right: 0;
+    height: 25px;
+    background: transparent;
   }
 
   /* 侧边栏 - 抽屉式 */
@@ -143,11 +156,12 @@
     overflow: visible !important;
   }
 
-  /* 移动端菜单按钮 */
+  /* 移动端菜单按钮 - 固定在左上角 */
   .mobile-menu-btn {
     display: flex !important;
     position: fixed !important;
     left: 10px !important;
+    right: auto !important;
     top: 10px !important;
     width: 40px !important;
     height: 40px !important;
@@ -158,6 +172,8 @@
     align-items: center;
     border-radius: 50%;
     transition: 0.2s;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .mobile-menu-btn:active {
@@ -293,6 +309,8 @@
   .note-tags {
     width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding-left: 5px !important;
   }
 
   .note-list-header > div:last-child {
@@ -315,6 +333,7 @@
   /* 标签容器 */
   .note-tag-container {
     width: 100% !important;
+    padding-top: 3px !important;
   }
 
   .tag-container {
@@ -322,38 +341,41 @@
     min-width: 100% !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
+    overflow-y: visible !important;
     padding-bottom: 0 !important;
-    margin: 0 !important;
-    scrollbar-width: none !important; /* 隐藏滚动条 Firefox */
-    -ms-overflow-style: none !important; /* 隐藏滚动条 IE/Edge */
+    padding-top: 2px !important;
+    margin: 0 5px !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 
   .tag-container::-webkit-scrollbar {
-    display: none !important; /* 隐藏滚动条 Chrome/Safari */
+    display: none !important;
   }
 
   /* 标签项 */
   .tag-list-item {
     min-width: 40px !important;
-    height: 26px !important;
+    height: 24px !important;
     font-size: 12px !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
     flex-shrink: 0 !important;
-    margin-top: 0 !important;
+    margin-top: 2px !important;
   }
 
   /* 添加标签按钮 */
   .tag-list-item-new {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 14px !important;
-    margin-top: 0 !important;
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 12px !important;
+    margin-top: 2px !important;
+    margin-left: 5px !important;
     flex-shrink: 0 !important;
   }
 
   .tag-list-item-new .icon-add {
-    font-size: 14px !important;
+    font-size: 12px !important;
   }
 
   /* 笔记列表中的空页面容器 - 调整位置避免与标签重叠 */
