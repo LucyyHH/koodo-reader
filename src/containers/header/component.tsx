@@ -592,7 +592,6 @@ class Header extends React.Component<HeaderProps, HeaderState> {
             onMouseLeave={() => {
               this.props.handleSortDisplay(false);
             }}
-            style={{ top: "18px" }}
           >
             <span
               data-tooltip-id="my-tooltip"
@@ -610,7 +609,6 @@ class Header extends React.Component<HeaderProps, HeaderState> {
             onMouseLeave={() => {
               this.props.handleAbout(false);
             }}
-            style={{ marginTop: "2px" }}
           >
             <span
               data-tooltip-id="my-tooltip"
@@ -633,7 +631,6 @@ class Header extends React.Component<HeaderProps, HeaderState> {
             onMouseLeave={() => {
               this.props.handleSortDisplay(false);
             }}
-            style={{ marginTop: "1px" }}
           >
             <span
               data-tooltip-id="my-tooltip"
@@ -658,7 +655,6 @@ class Header extends React.Component<HeaderProps, HeaderState> {
                 this.handleLocalSync();
               }
             }}
-            style={{ marginTop: "2px" }}
           >
             <span
               data-tooltip-id="my-tooltip"

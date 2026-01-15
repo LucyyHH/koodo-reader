@@ -222,15 +222,3 @@
   box-sizing: border-box;
 }
 
-/* 移动端适配 - 防止弹窗闪现 */
-@media screen and (max-width: 768px) {
-  .setting-dialog-container {
-    width: 95vw;
-    max-width: none;
-    left: 2.5vw;
-    right: 2.5vw;
-    height: 85vh;
-    top: 7.5vh;
-    animation: none;
-  }
-}
