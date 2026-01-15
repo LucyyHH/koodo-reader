@@ -113,17 +113,30 @@
     width: 70px !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-selector {
     width: 70px !important;
     justify-content: center !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 9px auto 7px auto !important;
+    margin: 0 auto !important;
     width: 30px !important;
+  }
+
+  /* 折叠状态下选中效果居中 */
+  .sidebar.sidebar-collapsed .side-menu-selector-container {
+    width: 50px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 12px !important;
   }
 
   /* 侧边栏遮罩层 */
@@ -334,6 +347,11 @@
   .note-tag-container {
     width: 100% !important;
     padding-top: 3px !important;
+    border: none !important;
+  }
+
+  .note-tags {
+    border: none !important;
   }
 
   .tag-container {
@@ -351,6 +369,20 @@
 
   .tag-container::-webkit-scrollbar {
     display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+  }
+
+  /* 移除列表默认样式 */
+  .tag-container {
+    list-style: none !important;
+    padding-left: 0 !important;
+    border: none !important;
+  }
+
+  .tag-container li {
+    list-style: none !important;
+    border: none !important;
   }
 
   /* 标签项 */
@@ -372,10 +404,19 @@
     margin-top: 2px !important;
     margin-left: 5px !important;
     flex-shrink: 0 !important;
+    border: none !important;
+    text-decoration: none !important;
   }
 
   .tag-list-item-new .icon-add {
     font-size: 12px !important;
+    text-decoration: none !important;
+  }
+
+  /* 输入框样式 */
+  #newTag {
+    border: none !important;
+    text-decoration: none !important;
   }
 
   /* 笔记列表中的空页面容器 - 调整位置避免与标签重叠 */
@@ -1199,17 +1240,30 @@
     width: 60px !important;
     margin-left: 0 !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-selector {
     width: 60px !important;
     justify-content: center !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-icon {
-    margin: 9px auto 7px auto !important;
+    margin: 0 auto !important;
     width: 30px !important;
+  }
+
+  /* 折叠状态下选中效果居中 */
+  .sidebar.sidebar-collapsed .side-menu-selector-container {
+    width: 45px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 12px !important;
   }
 
   /* 折叠状态下菜单按钮居中 */
