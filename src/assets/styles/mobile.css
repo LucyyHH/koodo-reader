@@ -121,7 +121,10 @@
 
   .sidebar.sidebar-collapsed .side-menu-selector {
     width: 70px !important;
+    height: 39px !important;
+    display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
@@ -129,22 +132,9 @@
   .sidebar.sidebar-collapsed .side-menu-icon {
     margin: 0 auto !important;
     width: 30px !important;
-  }
-
-  /* 折叠状态下选中效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-selector-container {
-    width: 50px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
-  }
-
-  /* 折叠状态下悬停效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-hover-container {
-    width: 50px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   /* 侧边栏遮罩层 */
@@ -329,9 +319,6 @@
 
   .note-tags {
     width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    padding-left: 5px !important;
   }
 
   .note-list-header > div:last-child {
@@ -351,94 +338,14 @@
     max-width: 200px !important;
   }
 
-  /* 标签容器 */
-  .note-tag-container {
-    width: 100% !important;
-    padding-top: 3px !important;
-    border: none !important;
-  }
-
-  .note-tags {
-    border: none !important;
-  }
-
+  /* 标签容器 - 只隐藏滚动条，其他保持原样 */
   .tag-container {
-    width: 100% !important;
-    min-width: 100% !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    padding-bottom: 0 !important;
-    padding-top: 2px !important;
-    margin: 0 5px !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
-    list-style: none !important;
-    padding-left: 0 !important;
-    border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-    text-decoration: none !important;
   }
 
   .tag-container::-webkit-scrollbar {
     display: none !important;
-    height: 0 !important;
-    width: 0 !important;
-  }
-
-  .tag-container::after,
-  .tag-container::before {
-    display: none !important;
-    content: none !important;
-  }
-
-  .tag-container li {
-    list-style: none !important;
-    border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-    text-decoration: none !important;
-  }
-
-  .tag-container li::after,
-  .tag-container li::before {
-    display: none !important;
-    content: none !important;
-  }
-
-  /* 标签项 */
-  .tag-list-item {
-    min-width: 40px !important;
-    height: 24px !important;
-    font-size: 12px !important;
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    flex-shrink: 0 !important;
-    margin-top: 2px !important;
-  }
-
-  /* 添加标签按钮 */
-  .tag-list-item-new {
-    width: 22px !important;
-    height: 22px !important;
-    font-size: 12px !important;
-    margin-top: 2px !important;
-    margin-left: 5px !important;
-    flex-shrink: 0 !important;
-    border: none !important;
-    text-decoration: none !important;
-  }
-
-  .tag-list-item-new .icon-add {
-    font-size: 12px !important;
-    text-decoration: none !important;
-  }
-
-  /* 输入框样式 */
-  #newTag {
-    border: none !important;
-    text-decoration: none !important;
   }
 
   /* 笔记列表中的空页面容器 - 调整位置避免与标签重叠 */
@@ -1205,6 +1112,11 @@
    ============================================ */
 
 @media screen and (min-width: 769px) and (max-width: 950px) {
+  /* 侧边栏需要 position: relative */
+  .sidebar {
+    position: relative !important;
+  }
+
   /* 确保侧边栏菜单按钮位置正确 */
   .sidebar-list-icon {
     position: absolute !important;
@@ -1222,6 +1134,7 @@
   /* 平板端 - 侧边栏默认展开 */
   .sidebar {
     width: 190px;
+    position: relative !important;
     transition: width 0.2s ease-in-out;
   }
 
@@ -1270,7 +1183,10 @@
 
   .sidebar.sidebar-collapsed .side-menu-selector {
     width: 60px !important;
+    height: 39px !important;
+    display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
@@ -1278,22 +1194,9 @@
   .sidebar.sidebar-collapsed .side-menu-icon {
     margin: 0 auto !important;
     width: 30px !important;
-  }
-
-  /* 折叠状态下选中效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-selector-container {
-    width: 45px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
-  }
-
-  /* 折叠状态下悬停效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-hover-container {
-    width: 45px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   /* 折叠状态下菜单按钮居中 */
@@ -1334,6 +1237,11 @@
    ============================================ */
 
 @media screen and (min-width: 1025px) {
+  /* 侧边栏需要 position: relative 来正确定位子元素 */
+  .sidebar {
+    position: relative !important;
+  }
+
   /* 折叠状态 - 只显示图标 */
   .sidebar.sidebar-collapsed {
     width: 70px !important;
@@ -1368,9 +1276,7 @@
     margin-left: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
+    position: relative !important;
   }
 
   .sidebar.sidebar-collapsed .side-menu-selector {
@@ -1383,22 +1289,16 @@
   .sidebar.sidebar-collapsed .side-menu-icon {
     margin: 0 auto !important;
     width: 30px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
-  /* 折叠状态下选中效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-selector-container {
-    width: 50px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
-  }
-
-  /* 折叠状态下悬停效果居中 */
-  .sidebar.sidebar-collapsed .side-menu-hover-container {
-    width: 50px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    border-radius: 12px !important;
+  .sidebar.sidebar-collapsed .side-menu-selector {
+    height: 39px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
   }
 
   /* 折叠状态下菜单按钮固定在左上角 */
