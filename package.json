@@ -220,6 +220,7 @@
     ],
     "extends": null,
     "dmg": {
+      "artifactName": "${productName}-${version}-${arch}.dmg",
       "contents": [
         {
           "x": 410,

@@ -35,6 +35,17 @@ android {
             }
         }
     }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def currentName = output.outputFileName
+            if (currentName != null) {
+                def dotIndex = currentName.lastIndexOf('.')
+                def ext = dotIndex != -1 ? currentName.substring(dotIndex) : ''
+                def baseName = "Koodo-Reader-${defaultConfig.versionName}-${variant.name}"
+                outputFileName = "${baseName}${ext}"
+            }
+        }
+    }
 }
 
 repositories {
