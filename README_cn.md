@@ -1,6 +1,6 @@
 <div align="left">
 
-简体中文 | [हिंदी](https://github.com/koodo-reader/koodo-reader/blob/master/README_hi.md) |[Português](https://github.com/koodo-reader/koodo-reader/blob/master/README_pt.md) | [English](https://github.com/koodo-reader/koodo-reader/blob/master/README.md) | [Indonesian](https://github.com/koodo-reader/koodo-reader/blob/master/README_id.md)
+简体中文 | [हिंदी](https://github.com/LucyyHH/koodo-reader/blob/master/README_hi.md) |[Português](https://github.com/LucyyHH/koodo-reader/blob/master/README_pt.md) | [English](https://github.com/LucyyHH/koodo-reader/blob/master/README.md) | [Indonesian](https://github.com/LucyyHH/koodo-reader/blob/master/README_id.md)
 
 </div>
 
@@ -131,7 +131,7 @@ brew install --cask koodo-reader
 1. 将项目源码下载到本地
 
    ```
-   git clone https://github.com/koodo-reader/koodo-reader.git
+   git clone https://github.com/LucyyHH/koodo-reader.git
    ```
 
 2. cd 到项目文件夹，运行以下代码进入客户端模式

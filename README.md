@@ -1,7 +1,7 @@
 <div align="left">
 
-[简体中文](https://github.com/koodo-reader/koodo-reader/blob/master/README_cn.md) | [हिंदी](https://github.com/koodo-reader/koodo-reader/blob/master/README_hi.md)
-|[Português](https://github.com/koodo-reader/koodo-reader/blob/master/README_pt.md) | [Indonesian](https://github.com/koodo-reader/koodo-reader/blob/master/README_id.md) | English
+[简体中文](https://github.com/LucyyHH/koodo-reader/blob/master/README_cn.md) | [हिंदी](https://github.com/LucyyHH/koodo-reader/blob/master/README_hi.md)
+|[Português](https://github.com/LucyyHH/koodo-reader/blob/master/README_pt.md) | [Indonesian](https://github.com/LucyyHH/koodo-reader/blob/master/README_id.md) | English
 
 </div>
 
@@ -131,7 +131,7 @@ Make sure that you have installed yarn and git
 1. Download the repo
 
    ```
-   git clone https://github.com/koodo-reader/koodo-reader.git
+   git clone https://github.com/LucyyHH/koodo-reader.git
    ```
 
 2. Enter desktop mode
@@ -158,7 +158,7 @@ Make sure that you have installed yarn and git
 
 3. Translate the terms to your target language based on the given English reference
 
-4. Submit the translation file or just translation snippets based on the amount of your translation to [this link](https://github.com/koodo-reader/koodo-reader/issues/new?assignees=&labels=submit+translation&projects=&template=submit_translation.yml). Pull request is also welcomed.
+4. Submit the translation file or just translation snippets based on the amount of your translation to [this link](https://github.com/LucyyHH/koodo-reader/issues/new?assignees=&labels=submit+translation&projects=&template=submit_translation.yml). Pull request is also welcomed.
 
 | Language(A-Z)   | Code  | View                                                |
 | --------------- | ----- | --------------------------------------------------- |
@@ -207,4 +207,4 @@ Make sure that you have installed yarn and git
 
 1. If you can't find your target language from the above list, download the English source file from [this link](./src/assets/locales/en/translation.json).
 
-2. When you're finished translating, submit the source file to [this link](https://github.com/koodo-reader/koodo-reader/issues/new?assignees=&labels=submit+translation&projects=&template=submit_translation.yml). Pull requests are also welcome.
+2. When you're finished translating, submit the source file to [this link](https://github.com/LucyyHH/koodo-reader/issues/new?assignees=&labels=submit+translation&projects=&template=submit_translation.yml). Pull requests are also welcome.

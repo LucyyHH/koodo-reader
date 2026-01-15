@@ -104,7 +104,7 @@ class AboutDialog extends React.Component<AboutDialogProps, AboutDialogState> {
               className="sort-by-category-list"
               onClick={() => {
                 this.handleJump(
-                  "https://github.com/koodo-reader/koodo-reader#translation"
+                  "https://github.com/LucyyHH/koodo-reader#translation"
                 );
               }}
             >
@@ -113,7 +113,7 @@ class AboutDialog extends React.Component<AboutDialogProps, AboutDialogState> {
             <li
               className="sort-by-category-list"
               onClick={() => {
-                this.handleJump("https://github.com/koodo-reader/koodo-reader");
+                this.handleJump("https://github.com/LucyyHH/koodo-reader");
               }}
             >
               <Trans>GitHub repository</Trans>

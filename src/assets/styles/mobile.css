@@ -262,7 +262,7 @@
     height: calc(100% - 115px) !important;
     padding: 0 10px !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .note-list-header {

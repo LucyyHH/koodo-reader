@@ -1,6 +1,6 @@
 <div align="left">
 
-[简体中文](https://github.com/koodo-reader/koodo-reader/blob/master/README_cn.md) | [हिंदी](https://github.com/koodo-reader/koodo-reader/blob/master/README_hi.md) |[Português](https://github.com/koodo-reader/koodo-reader/blob/master/README_pt.md) | [English](https://github.com/koodo-reader/koodo-reader/blob/master/README.md) | Indonesian
+[简体中文](https://github.com/LucyyHH/koodo-reader/blob/master/README_cn.md) | [हिंदी](https://github.com/LucyyHH/koodo-reader/blob/master/README_hi.md) |[Português](https://github.com/LucyyHH/koodo-reader/blob/master/README_pt.md) | [English](https://github.com/LucyyHH/koodo-reader/blob/master/README.md) | Indonesian
 
 </div>
 
@@ -60,7 +60,7 @@
 
 - Versi Desktop:
   - Versi stabil (Disarankan): [Unduh](https://koodoreader.com/en)
-  - Versi pengembang: [Unduh](https://github.com/koodo-reader/koodo-reader/releases/latest) (Memiliki fitur baru dan perbaikan bug, tetapi mungkin masih mengandung beberapa masalah yang belum diketahui)
+  - Versi pengembang: [Unduh](https://github.com/LucyyHH/koodo-reader/releases/latest) (Memiliki fitur baru dan perbaikan bug, tetapi mungkin masih mengandung beberapa masalah yang belum diketahui)
 - Versi Web: [Pratinjau](https://web.koodoreader.com)
 - Instal dengan Scoop:
 
@@ -127,7 +127,7 @@ Pastikan Anda telah menginstal yarn dan git.
 1. Unduh repositori:
 
    ```
-   git clone https://github.com/koodo-reader/koodo-reader.git
+   git clone https://github.com/LucyyHH/koodo-reader.git
    ```
 
 2. Masuk ke mode desktop:
