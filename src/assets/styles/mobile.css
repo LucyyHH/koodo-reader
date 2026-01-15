@@ -26,29 +26,18 @@
     opacity: 0 !important;
   }
 
-  /* 排序和设置下拉菜单 - 固定在右上角下方 */
+  /* 排序和设置下拉菜单 - 固定在右上角下方，与按钮重叠避免间隙 */
   .sort-dialog-container {
     position: fixed !important;
     left: auto !important;
     right: 10px !important;
-    top: 50px !important;
+    top: 45px !important;
     animation: none !important;
     z-index: 1000 !important;
     max-height: 70vh !important;
-    overflow-y: auto !important;
-    /* 添加顶部内边距，弥补与按钮的间隙 */
-    padding-top: 10px !important;
-  }
-
-  /* 在弹窗顶部添加一个透明的连接区域，防止鼠标移动时弹窗消失 */
-  .sort-dialog-container::before {
-    content: "" !important;
-    position: absolute !important;
-    top: -15px !important;
-    right: 0 !important;
-    width: 100% !important;
-    height: 20px !important;
-    background: transparent !important;
+    overflow: visible !important;
+    /* 添加顶部内边距，让内容显示在按钮下方 */
+    padding-top: 15px !important;
   }
 
   /* 侧边栏 - 抽屉式 */
@@ -288,16 +277,17 @@
     left: 0 !important;
     width: 100% !important;
     top: 115px !important;
-    height: calc(100% - 160px) !important;
+    height: calc(100% - 115px) !important;
     padding: 0 10px !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
   .note-list-header {
     flex-direction: column !important;
     align-items: flex-start !important;
-    padding: 5px !important;
-    gap: 10px !important;
+    padding: 5px 0 !important;
+    gap: 8px !important;
   }
 
   .note-tags {
@@ -332,30 +322,51 @@
     min-width: 100% !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    padding-bottom: 5px !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+    scrollbar-width: none !important; /* 隐藏滚动条 Firefox */
+    -ms-overflow-style: none !important; /* 隐藏滚动条 IE/Edge */
+  }
+
+  .tag-container::-webkit-scrollbar {
+    display: none !important; /* 隐藏滚动条 Chrome/Safari */
   }
 
   /* 标签项 */
   .tag-list-item {
     min-width: 40px !important;
-    height: 28px !important;
+    height: 26px !important;
     font-size: 12px !important;
     padding-left: 8px !important;
     padding-right: 8px !important;
     flex-shrink: 0 !important;
+    margin-top: 0 !important;
   }
 
   /* 添加标签按钮 */
   .tag-list-item-new {
-    width: 28px !important;
-    height: 28px !important;
+    width: 26px !important;
+    height: 26px !important;
     font-size: 14px !important;
-    margin-top: 5px !important;
+    margin-top: 0 !important;
     flex-shrink: 0 !important;
   }
 
   .tag-list-item-new .icon-add {
     font-size: 14px !important;
+  }
+
+  /* 笔记列表中的空页面 - 调整位置避免与标签重叠 */
+  .note-list-container-parent .empty-page-container {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100% - 80px) !important;
+  }
+
+  .note-list-container-parent .empty-page-info-container {
+    top: 10px !important;
   }
 
   .book-list-item-container {
