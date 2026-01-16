@@ -58,7 +58,14 @@ jobs:
 
       - name: Rename APK
         run: |
-          mv android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/Koodo-Reader-android.apk
+          APK_DIR="android/app/build/outputs/apk/release"
+          APK_PATH="$(ls "$APK_DIR"/*.apk 2>/dev/null | head -n 1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK found in $APK_DIR"
+            ls -la "$APK_DIR"
+            exit 1
+          fi
+          mv "$APK_PATH" "$APK_DIR/Koodo-Reader-android.apk"
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
