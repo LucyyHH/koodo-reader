@@ -295,66 +295,71 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
     file_content: ArrayBuffer,
     resolve: () => void
   ) => {
+    const fastImportThreshold = 50 * 1024 * 1024;
+    const comicFormats = ["cbz", "cbr", "cbt", "cb7"];
+    const isFastImport =
+      !isElectron &&
+      (comicFormats.includes(extension) || file.size >= fastImportThreshold);
     let result: BookModel;
-          try {
-            if (isFastImport) {
-              result = new BookModel(
-                md5,
-                bookName,
-                "",
-                "",
-                md5,
-                "",
-                extension.toUpperCase(),
-                "",
-                file.size,
-                0,
-                file.path || clickFilePath || file.name,
-                ""
-              );
-            } else {
-              let rendition = BookHelper.getRendition(
-                file_content,
-                {
-                  format: extension.toUpperCase(),
-                  readerMode: "",
-                  charset: "",
-                  animation:
-                    ConfigService.getReaderConfig("isSliding") === "yes"
-                      ? "sliding"
-                      : "",
-                  convertChinese: ConfigService.getReaderConfig("convertChinese"),
-                  parserRegex: "",
-                  isDarkMode: "no",
-                  isMobile: "no",
-                  password: "",
-                  isScannedPDF: "no",
-                },
-                Kookit
-              );
-              result = await BookHelper.generateBook(
-                bookName,
-                extension,
-                md5,
-                file.size,
-                file.path || clickFilePath,
-                file_content,
-                rendition
-              );
-              if (ConfigService.getReaderConfig("isUseOriginalName") === "yes") {
-                result.name = bookName;
-              }
-              if (
-                ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
-                extension !== "pdf"
-              ) {
-                let cache = await rendition.preCache(file_content);
-                if (cache !== "err" || cache) {
-                  await BookUtil.addBook("cache-" + result.key, "zip", cache);
-                }
-              }
-            }
-          } catch (error) {
+    try {
+      if (isFastImport) {
+        result = new BookModel(
+          md5,
+          bookName,
+          "",
+          "",
+          md5,
+          "",
+          extension.toUpperCase(),
+          "",
+          file.size,
+          0,
+          file.path || clickFilePath || file.name,
+          ""
+        );
+      } else {
+        let rendition = BookHelper.getRendition(
+          file_content,
+          {
+            format: extension.toUpperCase(),
+            readerMode: "",
+            charset: "",
+            animation:
+              ConfigService.getReaderConfig("isSliding") === "yes"
+                ? "sliding"
+                : "",
+            convertChinese: ConfigService.getReaderConfig("convertChinese"),
+            parserRegex: "",
+            isDarkMode: "no",
+            isMobile: "no",
+            password: "",
+            isScannedPDF: "no",
+          },
+          Kookit
+        );
+        result = await BookHelper.generateBook(
+          bookName,
+          extension,
+          md5,
+          file.size,
+          file.path || clickFilePath,
+          file_content,
+          rendition
+        );
+        if (ConfigService.getReaderConfig("isUseOriginalName") === "yes") {
+          result.name = bookName;
+        }
+        if (
+          ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
+          extension !== "pdf"
+        ) {
+          let cache = await rendition.preCache(file_content);
+          if (cache !== "err" || cache) {
+            await BookUtil.addBook("cache-" + result.key, "zip", cache);
+          }
+        }
+      }
+    } catch (error) {
       console.error(error, bookName);
       toast.error(this.props.t("Import failed") + ": " + bookName, {
         duration: 4000,
