@@ -196,7 +196,14 @@ export function handleFetchBooks() {
     let books = bookList.filter(
       (item: { key: string }) => !deletedBookKeys.includes(item.key)
     );
-    dispatch(handleBooks(books as BookModel[]));
+    // 防止配置列表或排序结果中出现重复 key
+    const seenKeys = new Set<string>();
+    const dedupedBooks = books.filter((item: { key: string }) => {
+      if (seenKeys.has(item.key)) return false;
+      seenKeys.add(item.key);
+      return true;
+    });
+    dispatch(handleBooks(dedupedBooks as BookModel[]));
     dispatch(
       handleDeletedBooks(deletedBookKeys.map((key) => ({ key })) as BookModel[])
     );

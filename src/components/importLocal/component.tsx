@@ -117,6 +117,8 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
       }
 
       this.props.handleReadingBook(book);
+      // 避免 recentBooks 里出现重复 key
+      ConfigService.deleteListConfig(book.key, "recentBooks");
       ConfigService.setListConfig(book.key, "recentBooks");
       DatabaseService.saveRecord(book, "books")
         .then(() => {
@@ -225,91 +227,83 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
         return resolve();
       }
       if (!isRepeat) {
-        let reader = new FileReader();
-        reader.readAsArrayBuffer(file);
-
-        reader.onload = async (e) => {
-          if (!e.target) {
-            console.error("e.target error", bookName);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const file_content = (event.target as any)?.result;
+          if (!file_content) {
+            console.error("file_content error", bookName);
             toast.error(this.props.t("Import failed") + ": " + bookName, {
               duration: 4000,
             });
             return resolve();
           }
-          let reader = new FileReader();
-          reader.onload = async (event) => {
-            const file_content = (event.target as any).result;
-            try {
-              let rendition = BookHelper.getRendition(
-                file_content,
-                {
-                  format: extension.toUpperCase(),
-                  readerMode: "",
-                  charset: "",
-                  animation:
-                    ConfigService.getReaderConfig("isSliding") === "yes"
-                      ? "sliding"
-                      : "",
-                  convertChinese:
-                    ConfigService.getReaderConfig("convertChinese"),
-                  parserRegex: "",
-                  isDarkMode: "no",
-                  isMobile: "no",
-                  password: "",
-                  isScannedPDF: "no",
-                },
-                Kookit
-              );
-              result = await BookHelper.generateBook(
-                bookName,
-                extension,
-                md5,
-                file.size,
-                file.path || clickFilePath,
-                file_content,
-                rendition
-              );
-              if (
-                ConfigService.getReaderConfig("isUseOriginalName") === "yes"
-              ) {
-                result.name = bookName;
-              }
-              if (
-                ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
-                extension !== "pdf"
-              ) {
-                let cache = await rendition.preCache(file_content);
-                if (cache !== "err" || cache) {
-                  await BookUtil.addBook("cache-" + result.key, "zip", cache);
-                }
-              }
-            } catch (error) {
-              console.error(error, bookName);
-              toast.error(this.props.t("Import failed") + ": " + bookName, {
-                duration: 4000,
-              });
-              return resolve();
-            }
-
-            clickFilePath = "";
-
-            // get metadata failed
-            if (!result || !result.key) {
-              console.error("get metadata failed", bookName);
-              toast.error(this.props.t("Import failed") + ": " + bookName, {
-                duration: 4000,
-              });
-              return resolve();
-            }
-            await this.handleAddBook(
-              result as BookModel,
-              file_content as ArrayBuffer
+          try {
+            let rendition = BookHelper.getRendition(
+              file_content,
+              {
+                format: extension.toUpperCase(),
+                readerMode: "",
+                charset: "",
+                animation:
+                  ConfigService.getReaderConfig("isSliding") === "yes"
+                    ? "sliding"
+                    : "",
+                convertChinese: ConfigService.getReaderConfig("convertChinese"),
+                parserRegex: "",
+                isDarkMode: "no",
+                isMobile: "no",
+                password: "",
+                isScannedPDF: "no",
+              },
+              Kookit
             );
-
+            result = await BookHelper.generateBook(
+              bookName,
+              extension,
+              md5,
+              file.size,
+              file.path || clickFilePath,
+              file_content,
+              rendition
+            );
+            if (ConfigService.getReaderConfig("isUseOriginalName") === "yes") {
+              result.name = bookName;
+            }
+            if (
+              ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
+              extension !== "pdf"
+            ) {
+              let cache = await rendition.preCache(file_content);
+              if (cache !== "err" || cache) {
+                await BookUtil.addBook("cache-" + result.key, "zip", cache);
+              }
+            }
+          } catch (error) {
+            console.error(error, bookName);
+            toast.error(this.props.t("Import failed") + ": " + bookName, {
+              duration: 4000,
+            });
             return resolve();
-          };
-          reader.readAsArrayBuffer(file);
+          }
+
+          clickFilePath = "";
+
+          // get metadata failed
+          if (!result || !result.key) {
+            console.error("get metadata failed", bookName);
+            toast.error(this.props.t("Import failed") + ": " + bookName, {
+              duration: 4000,
+            });
+            return resolve();
+          }
+          await this.handleAddBook(
+            result as BookModel,
+            file_content as ArrayBuffer
+          );
+
+          return resolve();
         };
+        reader.readAsArrayBuffer(file);
       }
     });
   };

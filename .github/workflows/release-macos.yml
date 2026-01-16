@@ -45,14 +45,14 @@ jobs:
       - name: Upload DMG x64
         uses: actions/upload-artifact@v4
         with:
-          name: Koodo-Reader-macOS-x64-DMG
+          name: Koodo-Reader-macOS-x64-dmg
           path: dist/*x64*.dmg
 
       - name: Upload DMG arm64
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Koodo-Reader-macOS-arm64-DMG
+          name: Koodo-Reader-macOS-arm64-dmg
           path: dist/*arm64*.dmg
 
       - name: Upload ZIP x64

@@ -71,19 +71,38 @@ export const supportedFormats = [
 ];
 export const calculateFileMD5 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
+    const chunkSize = 2 * 1024 * 1024;
+    const chunks = Math.ceil(file.size / chunkSize);
+    let currentChunk = 0;
+    const spark = new SparkMD5.ArrayBuffer();
     const reader = new FileReader();
 
+    const loadNext = () => {
+      const start = currentChunk * chunkSize;
+      const end = Math.min(start + chunkSize, file.size);
+      reader.readAsArrayBuffer(file.slice(start, end));
+    };
+
     reader.onload = (event) => {
-      const arrayBuffer = event.target?.result as ArrayBuffer;
-      const md5Hash = SparkMD5.ArrayBuffer.hash(arrayBuffer);
-      resolve(md5Hash);
+      const arrayBuffer = event.target?.result as ArrayBuffer | null;
+      if (!arrayBuffer) {
+        reject(new Error("md5 read error"));
+        return;
+      }
+      spark.append(arrayBuffer);
+      currentChunk += 1;
+      if (currentChunk < chunks) {
+        setTimeout(loadNext, 0);
+      } else {
+        resolve(spark.end());
+      }
     };
 
     reader.onerror = (error) => {
       reject(error);
     };
 
-    reader.readAsArrayBuffer(file);
+    loadNext();
   });
 };
 export const vexPromptAsync = (message, placeholder = "", value = "") => {

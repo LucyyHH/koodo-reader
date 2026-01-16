@@ -282,6 +282,8 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       await this.handleRest(rendition);
       this.props.handleReadingState(true);
 
+      // 避免 recentBooks 里出现重复 key
+      ConfigService.deleteListConfig(this.props.currentBook.key, "recentBooks");
       ConfigService.setListConfig(this.props.currentBook.key, "recentBooks");
       document.title = name + " - Koodo Reader";
     });

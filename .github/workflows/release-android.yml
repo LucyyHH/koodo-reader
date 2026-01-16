@@ -65,19 +65,24 @@ jobs:
             ls -la "$APK_DIR"
             exit 1
           fi
-          mv "$APK_PATH" "$APK_DIR/Koodo-Reader-android.apk"
+          VERSION_NAME="$(sed -n 's/^[[:space:]]*versionName[[:space:]]*"\(.*\)".*$/\1/p' android/app/build.gradle | head -n 1)"
+          if [ -z "$VERSION_NAME" ]; then
+            echo "Failed to read versionName from android/app/build.gradle"
+            exit 1
+          fi
+          mv "$APK_PATH" "$APK_DIR/Koodo-Reader-${VERSION_NAME}-android.apk"
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: Koodo-Reader-android-apk
-          path: android/app/build/outputs/apk/release/Koodo-Reader-android.apk
+          path: android/app/build/outputs/apk/release/Koodo-Reader-*-android.apk
 
       # 发布到 GitHub Releases（当推送 tag 时）
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/Koodo-Reader-android.apk
+          files: android/app/build/outputs/apk/release/Koodo-Reader-*-android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
