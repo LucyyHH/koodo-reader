@@ -13,6 +13,31 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
+  shouldComponentUpdate(nextProps: BookCoverProps, nextState: BookCoverState) {
+    if (nextState !== this.state) return true;
+    if (nextProps.isSelected !== this.props.isSelected) return true;
+    if (nextProps.isSelectBook !== this.props.isSelectBook) return true;
+    if (nextProps.isOpenActionDialog !== this.props.isOpenActionDialog)
+      return true;
+    if (nextProps.currentBook.key !== this.props.currentBook.key) return true;
+    const nextBook = nextProps.book;
+    const prevBook = this.props.book;
+    if (nextBook !== prevBook) return true;
+    if (
+      nextBook.key !== prevBook.key ||
+      nextBook.name !== prevBook.name ||
+      nextBook.author !== prevBook.author ||
+      nextBook.publisher !== prevBook.publisher ||
+      nextBook.description !== prevBook.description ||
+      nextBook.format !== prevBook.format ||
+      nextBook.size !== prevBook.size ||
+      nextBook.page !== prevBook.page ||
+      nextBook.path !== prevBook.path
+    ) {
+      return true;
+    }
+    return false;
+  }
   private getDescriptionText = (description: string) => {
     if (!description) return "";
     const div = document.createElement("div");

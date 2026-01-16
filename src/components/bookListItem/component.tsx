@@ -13,6 +13,31 @@ import { saveAs } from "file-saver";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 class BookListItem extends React.Component<BookItemProps, BookItemState> {
+  shouldComponentUpdate(nextProps: BookItemProps, nextState: BookItemState) {
+    if (nextState !== this.state) return true;
+    if (nextProps.isSelected !== this.props.isSelected) return true;
+    if (nextProps.isSelectBook !== this.props.isSelectBook) return true;
+    if (nextProps.isOpenActionDialog !== this.props.isOpenActionDialog)
+      return true;
+    if (nextProps.currentBook.key !== this.props.currentBook.key) return true;
+    const nextBook = nextProps.book;
+    const prevBook = this.props.book;
+    if (nextBook !== prevBook) return true;
+    if (
+      nextBook.key !== prevBook.key ||
+      nextBook.name !== prevBook.name ||
+      nextBook.author !== prevBook.author ||
+      nextBook.publisher !== prevBook.publisher ||
+      nextBook.description !== prevBook.description ||
+      nextBook.format !== prevBook.format ||
+      nextBook.size !== prevBook.size ||
+      nextBook.page !== prevBook.page ||
+      nextBook.path !== prevBook.path
+    ) {
+      return true;
+    }
+    return false;
+  }
   private revokeCoverUrl = (cover?: string) => {
     if (cover && cover.startsWith("blob:")) {
       URL.revokeObjectURL(cover);
