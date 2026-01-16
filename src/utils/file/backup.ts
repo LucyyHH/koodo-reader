@@ -5,6 +5,7 @@ import CoverUtil from "./coverUtil";
 import { CommonTool } from "../../assets/lib/kookit-extra-browser.min";
 import { getCloudConfig } from "./common";
 import DatabaseService from "../storage/databaseService";
+import BookModel from "../../models/Book";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import ConfigUtil from "./configUtil";
@@ -193,6 +194,20 @@ export const backupFromPath = async (targetPath: string, fileName: string) => {
 };
 export const backupFromStorage = async () => {
   let zip = new JSZip();
+  if (!isElectron) {
+    await CoverUtil.migrateCoverStoreIfNeeded();
+  }
+  const allBooks = (await DatabaseService.getAllRecords("books")) || [];
+  const maxWebBackupBytes = 200 * 1024 * 1024;
+  const hasUnknownSize = allBooks.some((book) => !book?.size);
+  const totalBookBytes = allBooks.reduce((sum, book) => {
+    return sum + (book?.size || 0);
+  }, 0);
+  const shouldIncludeBookFiles = isElectron
+    ? true
+    : totalBookBytes > 0
+    ? totalBookBytes <= maxWebBackupBytes
+    : !hasUnknownSize && allBooks.length <= 200;
   let books = await DatabaseService.getDbBuffer("books");
   let notes = await DatabaseService.getDbBuffer("notes");
   let bookmarks = await DatabaseService.getDbBuffer("bookmarks");
@@ -200,8 +215,16 @@ export const backupFromStorage = async () => {
   let plugins = await DatabaseService.getDbBuffer("plugins");
   let config = JSON.stringify(await ConfigUtil.dumpConfig("config"));
   let sync = JSON.stringify(await ConfigUtil.dumpConfig("sync"));
-  await zipCover(zip);
-  await zipBook(zip);
+  if (shouldIncludeBookFiles) {
+    await zipCover(zip, allBooks);
+    await zipBook(zip, allBooks);
+  } else {
+    toast(
+      i18n.t(
+        "Koodo Reader's web version are limited by the browser, for more powerful features, please download the desktop version."
+      )
+    );
+  }
   let result = await zipConfig(
     zip,
     books,
@@ -245,9 +268,8 @@ export const backupToSyncJson = async () => {
   );
 };
 
-export const zipBook = (zip: any) => {
+export const zipBook = (zip: any, books: BookModel[]) => {
   return new Promise<boolean>(async (resolve) => {
-    let books = await DatabaseService.getAllRecords("books");
     let bookZip = zip.folder("book");
     let data: any = [];
     books &&
@@ -279,17 +301,16 @@ export const zipBook = (zip: any) => {
     }
   });
 };
-export const zipCover = async (zip: any) => {
-  let books = await DatabaseService.getAllRecords("books");
+export const zipCover = async (zip: any, books: BookModel[]) => {
   let coverZip = zip.folder("cover");
   if (isElectron) {
-  } else {
-    for (let i = 0; i < books.length; i++) {
-      const result = CoverUtil.convertCoverBase64(
-        await CoverUtil.getCover(books[i])
-      );
-      coverZip.file(`${books[i].key}.${result.extension}`, result.arrayBuffer);
-    }
+    return;
+  }
+  for (let i = 0; i < books.length; i++) {
+    const base64 = await CoverUtil.getCoverBase64(books[i]);
+    if (!base64) continue;
+    const result = CoverUtil.convertCoverBase64(base64);
+    coverZip.file(`${books[i].key}.${result.extension}`, result.arrayBuffer);
   }
 };
 

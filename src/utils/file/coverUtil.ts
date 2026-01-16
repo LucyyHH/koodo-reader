@@ -76,6 +76,30 @@ class CoverUtil {
     if (!key || !base64) return;
     await coverStore.setItem(key, base64);
   }
+  static async getCoverBase64(book: BookModel) {
+    if (!book) return "";
+    if (book.cover && book.cover.startsWith("data:image/")) {
+      return book.cover;
+    }
+    if (
+      !isElectron &&
+      ConfigService.getReaderConfig("isUseLocal") !== "yes" &&
+      book.key
+    ) {
+      const cover = await this.getCoverFromStore(book.key);
+      if (cover) return cover;
+    }
+    if (book.key) {
+      let fullBook: Book | null = await DatabaseService.getRecord(
+        book.key,
+        "books"
+      );
+      if (fullBook?.cover && fullBook.cover.startsWith("data:image/")) {
+        return fullBook.cover;
+      }
+    }
+    return "";
+  }
   static async getCover(book: BookModel) {
     if (isElectron) {
       var fs = window.require("fs");
