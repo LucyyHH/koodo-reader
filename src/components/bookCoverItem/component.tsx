@@ -13,6 +13,12 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
+  private getDescriptionText = (description: string) => {
+    if (!description) return "";
+    const div = document.createElement("div");
+    div.innerHTML = description;
+    return div.textContent || div.innerText || "";
+  };
   private revokeCoverUrl = (cover?: string) => {
     if (cover && cover.startsWith("blob:")) {
       URL.revokeObjectURL(cover);
@@ -40,6 +46,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     this.setState({
       cover: await CoverUtil.getCover(this.props.book),
       isCoverExist: await CoverUtil.isCoverExist(this.props.book),
+      desc: this.getDescriptionText(this.props.book.description),
     });
     this.setState({
       isBookOffline: await BookUtil.isBookOffline(this.props.book.key),
@@ -75,8 +82,13 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
         cover,
         isCoverExist,
         isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+        desc: this.getDescriptionText(nextProps.book.description),
       }, () => {
         this.revokeCoverUrl(prevCover);
+      });
+    } else if (nextProps.book.description !== this.props.book.description) {
+      this.setState({
+        desc: this.getDescriptionText(nextProps.book.description),
       });
     }
   }
@@ -147,10 +159,6 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
       ).percentage;
     }
 
-    var htmlString = this.props.book.description;
-    var div = document.createElement("div");
-    div.innerHTML = htmlString;
-    var textContent = div.textContent || div.innerText;
     const actionProps = { left: this.state.left, top: this.state.top };
     return (
       <>
@@ -312,7 +320,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
           <div className="book-cover-item-desc">
             <Trans>Description</Trans>:&nbsp;
             <div className="book-cover-item-desc-detail">
-              {this.props.book.description ? textContent : <Trans>Empty</Trans>}
+              {this.state.desc ? this.state.desc : <Trans>Empty</Trans>}
             </div>
           </div>
         </div>
