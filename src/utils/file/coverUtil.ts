@@ -81,7 +81,25 @@ class CoverUtil {
         const objectUrl = URL.createObjectURL(blob);
         return objectUrl;
       } else {
-        return book.cover;
+        let cover = book.cover;
+        if (!cover && book.key) {
+          let fullBook: Book | null = await DatabaseService.getRecord(
+            book.key,
+            "books"
+          );
+          cover = fullBook?.cover || "";
+        }
+        if (!cover) {
+          return "";
+        }
+        if (cover.startsWith("data:image/")) {
+          const result = this.convertCoverBase64(cover);
+          const blob = new Blob([result.arrayBuffer], {
+            type: `image/${result.extension}`,
+          });
+          return URL.createObjectURL(blob);
+        }
+        return cover;
       }
     }
   }
@@ -112,7 +130,17 @@ class CoverUtil {
         }
         return true;
       } else {
-        return book.cover !== "";
+        if (book.cover) {
+          return true;
+        }
+        if (book.key) {
+          let fullBook: Book | null = await DatabaseService.getRecord(
+            book.key,
+            "books"
+          );
+          return !!fullBook?.cover;
+        }
+        return false;
       }
     }
   }

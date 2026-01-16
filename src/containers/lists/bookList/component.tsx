@@ -15,24 +15,14 @@ import { isElectron } from "react-device-detect";
 import DatabaseService from "../../../utils/storage/databaseService";
 declare var window: any;
 let currentBookMode = "home";
-function getBookCountPerPage() {
-  const container = document.querySelector(
-    ".book-list-container"
-  ) as HTMLElement;
-  if (!container) return 24; // fallback
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
-  const bookWidth = 133;
-  const bookHeight = 201;
-  const columns = Math.max(1, Math.floor(containerWidth / bookWidth));
-  const rows = Math.max(1, Math.floor(containerHeight / bookHeight)) + 2;
-  return columns * rows;
-}
 
 class BookList extends React.Component<BookListProps, BookListState> {
   private scrollContainer: React.RefObject<HTMLUListElement>;
   private visibilityChangeHandler: ((event: Event) => void) | null = null;
   private resizeHandler: (() => void) | null = null;
+  private scrollRaf = 0;
+  private metricsRaf = 0;
+  private latestScrollTop = 0;
 
   constructor(props: BookListProps) {
     super(props);
@@ -46,6 +36,11 @@ class BookList extends React.Component<BookListProps, BookListState> {
       displayedBooksCount: 24,
       isLoadingMore: false,
       fullBooksData: [], // 存储从数据库加载的完整书籍数据
+      itemWidth: 0,
+      itemHeight: 0,
+      itemMarginX: 0,
+      itemMarginY: 0,
+      scrollTop: 0,
     };
   }
   UNSAFE_componentWillMount() {
@@ -57,13 +52,15 @@ class BookList extends React.Component<BookListProps, BookListState> {
       return <Redirect to="manager/empty" />;
     }
     this.setState({
-      displayedBooksCount: getBookCountPerPage(),
+      displayedBooksCount: this.getBookCountPerPage(),
     });
 
     // 保存 resize 监听器引用
     this.resizeHandler = () => {
       //recount the book count per page when the window is resized
       this.props.handleFetchBooks();
+      this.scheduleMetricsUpdate();
+      this.updateDisplayedBooksCount();
     };
     window.addEventListener("resize", this.resizeHandler);
 
@@ -87,6 +84,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
 
     // 初始加载完整的书籍数据
     await this.loadFullBooksData();
+    this.scheduleMetricsUpdate();
   }
 
   componentWillUnmount() {
@@ -113,6 +111,14 @@ class BookList extends React.Component<BookListProps, BookListState> {
       const { ipcRenderer } = window.require("electron");
       ipcRenderer.removeAllListeners("reading-finished");
     }
+    if (this.scrollRaf) {
+      window.cancelAnimationFrame(this.scrollRaf);
+      this.scrollRaf = 0;
+    }
+    if (this.metricsRaf) {
+      window.cancelAnimationFrame(this.metricsRaf);
+      this.metricsRaf = 0;
+    }
   }
 
   componentDidUpdate(prevProps: BookListProps) {
@@ -125,7 +131,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
       prevProps.shelfTitle !== this.props.shelfTitle
     ) {
       this.setState({
-        displayedBooksCount: getBookCountPerPage(),
+        displayedBooksCount: this.getBookCountPerPage(),
         isLoadingMore: false,
       });
       this.props.handleLoadMore(false);
@@ -133,8 +139,16 @@ class BookList extends React.Component<BookListProps, BookListState> {
       if (this.scrollContainer.current) {
         this.scrollContainer.current.scrollTop = 0;
       }
+      if (this.state.scrollTop !== 0) {
+        this.setState({ scrollTop: 0 });
+      }
       // 重新加载完整的书籍数据
       this.loadFullBooksData();
+      this.scheduleMetricsUpdate();
+    }
+    if (prevProps.viewMode !== this.props.viewMode) {
+      this.scheduleMetricsUpdate();
+      this.updateDisplayedBooksCount();
     }
   }
 
@@ -147,7 +161,25 @@ class BookList extends React.Component<BookListProps, BookListState> {
     const keys = displayedBooks.map((book: any) => book.key);
     const fullBooksData = await DatabaseService.getRecordsByKeys(keys, "books");
 
-    this.setState({ fullBooksData });
+    this.setState(
+      {
+        fullBooksData: fullBooksData.map(this.sanitizeBookCover),
+      },
+      () => {
+        this.scheduleMetricsUpdate();
+      }
+    );
+  };
+  sanitizeBookCover = (book: BookModel) => {
+    if (
+      !isElectron &&
+      ConfigService.getReaderConfig("isUseLocal") !== "yes" &&
+      book.cover &&
+      book.cover.startsWith("data:image/")
+    ) {
+      return { ...book, cover: "" };
+    }
+    return book;
   };
   handleFinishReading = async () => {
     if (!this.scrollContainer.current) return;
@@ -177,13 +209,18 @@ class BookList extends React.Component<BookListProps, BookListState> {
 
   handleScroll = () => {
     const scrollContainer = this.scrollContainer.current;
-    if (!scrollContainer || this.state.isLoadingMore) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-    // 当滚动到底部附近时触发加载更多
-    if (scrollTop + clientHeight >= scrollHeight - 300) {
-      this.loadMoreBooks();
-    }
+    if (!scrollContainer) return;
+    this.latestScrollTop = scrollContainer.scrollTop;
+    if (this.scrollRaf) return;
+    this.scrollRaf = window.requestAnimationFrame(() => {
+      this.scrollRaf = 0;
+      this.setState({ scrollTop: this.latestScrollTop });
+      if (this.state.isLoadingMore) return;
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      if (scrollTop + clientHeight >= scrollHeight - 300) {
+        this.loadMoreBooks();
+      }
+    });
   };
 
   loadMoreBooks = () => {
@@ -201,13 +238,18 @@ class BookList extends React.Component<BookListProps, BookListState> {
     if (this.props.isSearch) {
       setTimeout(() => {
         const newDisplayedBooksCount = Math.min(
-          displayedBooksCount + getBookCountPerPage(),
+          displayedBooksCount + this.getBookCountPerPage(),
           books.length
         );
-        this.setState({
-          displayedBooksCount: newDisplayedBooksCount,
-          isLoadingMore: false,
-        });
+        this.setState(
+          {
+            displayedBooksCount: newDisplayedBooksCount,
+            isLoadingMore: false,
+          },
+          () => {
+            this.scheduleMetricsUpdate();
+          }
+        );
         this.props.handleLoadMore(false);
       }, 50);
       return;
@@ -216,7 +258,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
     // 非搜索模式，异步加载更多书籍数据
     setTimeout(async () => {
       const newDisplayedBooksCount = Math.min(
-        displayedBooksCount + getBookCountPerPage(),
+        displayedBooksCount + this.getBookCountPerPage(),
         books.length
       );
 
@@ -228,13 +270,153 @@ class BookList extends React.Component<BookListProps, BookListState> {
         "books"
       );
 
-      this.setState({
-        displayedBooksCount: newDisplayedBooksCount,
-        isLoadingMore: false,
-        fullBooksData: [...this.state.fullBooksData, ...newFullBooksData],
-      });
+      this.setState(
+        {
+          displayedBooksCount: newDisplayedBooksCount,
+          isLoadingMore: false,
+          fullBooksData: [
+            ...this.state.fullBooksData,
+            ...newFullBooksData.map(this.sanitizeBookCover),
+          ],
+        },
+        () => {
+          this.scheduleMetricsUpdate();
+        }
+      );
       this.props.handleLoadMore(false);
     }, 100);
+  };
+
+  getItemSelector = () => {
+    if (this.props.viewMode === "list") {
+      return ".book-list-item-container";
+    }
+    if (this.props.viewMode === "card") {
+      return ".book-list-item";
+    }
+    return ".book-list-cover-item";
+  };
+
+  scheduleMetricsUpdate = () => {
+    if (this.metricsRaf) return;
+    this.metricsRaf = window.requestAnimationFrame(() => {
+      this.metricsRaf = 0;
+      this.updateItemMetrics();
+    });
+  };
+
+  updateItemMetrics = () => {
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer) return;
+    const selector = this.getItemSelector();
+    const item = scrollContainer.querySelector(selector) as HTMLElement | null;
+    if (!item) return;
+    const style = window.getComputedStyle(item);
+    const marginX =
+      parseFloat(style.marginLeft || "0") + parseFloat(style.marginRight || "0");
+    const marginY =
+      parseFloat(style.marginTop || "0") + parseFloat(style.marginBottom || "0");
+    const width = item.offsetWidth;
+    const height = item.offsetHeight;
+    if (!width || !height) return;
+    if (
+      width !== this.state.itemWidth ||
+      height !== this.state.itemHeight ||
+      marginX !== this.state.itemMarginX ||
+      marginY !== this.state.itemMarginY
+    ) {
+      this.setState(
+        {
+          itemWidth: width,
+          itemHeight: height,
+          itemMarginX: marginX,
+          itemMarginY: marginY,
+        },
+        () => {
+          this.updateDisplayedBooksCount();
+        }
+      );
+    }
+  };
+
+  getBookCountPerPage = () => {
+    const container = document.querySelector(
+      ".book-list-container"
+    ) as HTMLElement;
+    if (!container) return 24; // fallback
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    let { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
+    if (!itemWidth || !itemHeight) {
+      if (this.props.viewMode === "list") {
+        itemWidth = containerWidth;
+        itemHeight = 90;
+        itemMarginX = 0;
+        itemMarginY = 0;
+      } else if (this.props.viewMode === "cover") {
+        itemWidth = 400;
+        itemHeight = 190;
+        itemMarginX = 0;
+        itemMarginY = 0;
+      } else {
+        itemWidth = 133;
+        itemHeight = 201;
+        itemMarginX = 0;
+        itemMarginY = 0;
+      }
+    }
+    const rowHeight = itemHeight + itemMarginY;
+    const itemSpaceX = itemWidth + itemMarginX || 1;
+    const columns =
+      this.props.viewMode === "list"
+        ? 1
+        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
+    const rows = Math.max(1, Math.floor(containerHeight / rowHeight)) + 2;
+    return columns * rows;
+  };
+
+  updateDisplayedBooksCount = () => {
+    const targetCount = this.getBookCountPerPage();
+    if (targetCount !== this.state.displayedBooksCount) {
+      this.setState({ displayedBooksCount: targetCount });
+    }
+  };
+
+  getVirtualWindow = (totalItems: number) => {
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer || totalItems === 0) return null;
+    const { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
+    if (!itemHeight) return null;
+    const containerWidth = scrollContainer.clientWidth;
+    const containerHeight = scrollContainer.clientHeight;
+    const rowHeight = itemHeight + itemMarginY;
+    const itemSpaceX = itemWidth + itemMarginX || 1;
+    const itemsPerRow =
+      this.props.viewMode === "list"
+        ? 1
+        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
+    const totalRows = Math.ceil(totalItems / itemsPerRow);
+    const overscanRows = 2;
+    const scrollTop = this.state.scrollTop;
+    const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - overscanRows);
+    const endRow = Math.min(
+      totalRows - 1,
+      Math.floor((scrollTop + containerHeight) / rowHeight) + overscanRows
+    );
+    const startIndex = startRow * itemsPerRow;
+    const endIndex = Math.min(
+      totalItems - 1,
+      (endRow + 1) * itemsPerRow - 1
+    );
+    return {
+      startRow,
+      endRow,
+      startIndex,
+      endIndex,
+      totalRows,
+      rowHeight,
+      itemsPerRow,
+    };
   };
 
   handleKeyFilter = (items: any[], arr: string[]) => {
@@ -289,34 +471,68 @@ class BookList extends React.Component<BookListProps, BookListState> {
     const displayedBooks = this.props.isSearch
       ? books.slice(0, this.state.displayedBooksCount)
       : this.state.fullBooksData;
+    if (displayedBooks.length === 0) return null;
 
-    return displayedBooks.map((item: BookModel, index: number) => {
+    const virtualWindow = this.getVirtualWindow(displayedBooks.length);
+    const renderBooks = virtualWindow
+      ? displayedBooks.slice(
+          virtualWindow.startIndex,
+          virtualWindow.endIndex + 1
+        )
+      : displayedBooks.slice(0, Math.min(displayedBooks.length, 30));
+
+    const items = renderBooks.map((item: BookModel, index: number) => {
+      const resolvedBook = this.props.isSearch
+        ? this.sanitizeBookCover(item)
+        : item;
+      const realIndex = virtualWindow
+        ? virtualWindow.startIndex + index
+        : index;
       return this.props.viewMode === "list" ? (
         <BookListItem
           {...{
-            key: index,
-            book: item,
-            isSelected: this.props.selectedBooks.indexOf(item.key) > -1,
+            key: resolvedBook.key || realIndex,
+            book: resolvedBook,
+            isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
           }}
         />
       ) : this.props.viewMode === "card" ? (
         <BookCardItem
           {...{
-            key: index,
-            book: item,
-            isSelected: this.props.selectedBooks.indexOf(item.key) > -1,
+            key: resolvedBook.key || realIndex,
+            book: resolvedBook,
+            isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
           }}
         />
       ) : (
         <BookCoverItem
           {...{
-            key: index,
-            book: item,
-            isSelected: this.props.selectedBooks.indexOf(item.key) > -1,
+            key: resolvedBook.key || realIndex,
+            book: resolvedBook,
+            isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
           }}
         />
       );
     });
+
+    if (!virtualWindow) {
+      return items;
+    }
+
+    const topSpacerHeight = virtualWindow.startRow * virtualWindow.rowHeight;
+    const bottomSpacerHeight =
+      (virtualWindow.totalRows - virtualWindow.endRow - 1) *
+      virtualWindow.rowHeight;
+
+    return (
+      <>
+        <div style={{ height: topSpacerHeight, width: "100%", clear: "both" }} />
+        {items}
+        <div
+          style={{ height: bottomSpacerHeight, width: "100%", clear: "both" }}
+        />
+      </>
+    );
   };
   handleBooks = () => {
     let bookMode = this.props.isSearch

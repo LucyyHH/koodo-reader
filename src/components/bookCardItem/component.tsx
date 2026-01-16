@@ -12,6 +12,11 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCardItem extends React.Component<BookCardProps, BookCardState> {
+  private revokeCoverUrl = (cover?: string) => {
+    if (cover && cover.startsWith("blob:")) {
+      URL.revokeObjectURL(cover);
+    }
+  };
   constructor(props: BookCardProps) {
     super(props);
     this.state = {
@@ -58,6 +63,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookCardProps) {
     if (nextProps.book.key !== this.props.book.key) {
+      const prevCover = this.state.cover;
       let cover = await CoverUtil.getCover(nextProps.book);
       let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
       this.setState({
@@ -67,11 +73,14 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
           ) > -1,
         cover,
         isCoverExist,
-      });
-      this.setState({
         isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+      }, () => {
+        this.revokeCoverUrl(prevCover);
       });
     }
+  }
+  componentWillUnmount() {
+    this.revokeCoverUrl(this.state.cover);
   }
 
   handleMoreAction = (event: any) => {
@@ -188,6 +197,8 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
                 src={this.state.cover}
                 alt=""
                 className="book-item-image"
+                loading="lazy"
+                decoding="async"
                 style={
                   this.state.direction === "horizontal" ||
                   ConfigService.getReaderConfig("isDisableCrop") === "yes"

@@ -29,4 +29,9 @@ export interface BookListState {
   displayedBooksCount: number;
   isLoadingMore: boolean;
   fullBooksData: BookModel[];
+  itemWidth: number;
+  itemHeight: number;
+  itemMarginX: number;
+  itemMarginY: number;
+  scrollTop: number;
 }

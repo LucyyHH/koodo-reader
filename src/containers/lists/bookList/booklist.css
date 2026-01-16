@@ -28,6 +28,16 @@
   align-content: flex-start;
   user-select: text;
 }
+.book-list-item-box {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
 .booklist-shelf-list {
   width: 169px;

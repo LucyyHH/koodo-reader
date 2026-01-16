@@ -12,14 +12,39 @@ import DatabaseService from "../../../utils/storage/databaseService";
 import EmptyPage from "../../emptyPage";
 
 class BookList extends React.Component<BookListProps, BookListState> {
+  private scrollContainer: React.RefObject<HTMLUListElement>;
+  private scrollRaf = 0;
+  private metricsRaf = 0;
+  private latestScrollTop = 0;
   constructor(props: BookListProps) {
     super(props);
+    this.scrollContainer = React.createRef();
     this.state = {
       fullBooksData: [],
+      itemWidth: 0,
+      itemHeight: 0,
+      itemMarginX: 0,
+      itemMarginY: 0,
+      scrollTop: 0,
     };
   }
   UNSAFE_componentWillMount() {
     this.props.handleFetchBooks();
+  }
+  componentDidMount() {
+    this.setupScrollListener();
+    this.scheduleMetricsUpdate();
+  }
+  componentWillUnmount() {
+    this.cleanupScrollListener();
+    if (this.scrollRaf) {
+      window.cancelAnimationFrame(this.scrollRaf);
+      this.scrollRaf = 0;
+    }
+    if (this.metricsRaf) {
+      window.cancelAnimationFrame(this.metricsRaf);
+      this.metricsRaf = 0;
+    }
   }
   async UNSAFE_componentWillReceiveProps(nextProps: Readonly<BookListProps>) {
     if (nextProps.deletedBooks !== this.props.deletedBooks) {
@@ -31,7 +56,14 @@ class BookList extends React.Component<BookListProps, BookListState> {
           fullBooksData.push(fullBook);
         }
       }
-      this.setState({ fullBooksData });
+      this.setState({ fullBooksData }, () => {
+        this.scheduleMetricsUpdate();
+      });
+    }
+  }
+  componentDidUpdate(prevProps: BookListProps) {
+    if (prevProps.viewMode !== this.props.viewMode) {
+      this.scheduleMetricsUpdate();
     }
   }
   isElementInViewport = (element) => {
@@ -67,21 +99,138 @@ class BookList extends React.Component<BookListProps, BookListState> {
 
     return itemArr;
   };
+  setupScrollListener = () => {
+    const scrollContainer = this.scrollContainer.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", this.handleScroll);
+    }
+  };
+
+  cleanupScrollListener = () => {
+    const scrollContainer = this.scrollContainer.current;
+    if (scrollContainer) {
+      scrollContainer.removeEventListener("scroll", this.handleScroll);
+    }
+  };
+
+  handleScroll = () => {
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer) return;
+    this.latestScrollTop = scrollContainer.scrollTop;
+    if (this.scrollRaf) return;
+    this.scrollRaf = window.requestAnimationFrame(() => {
+      this.scrollRaf = 0;
+      this.setState({ scrollTop: this.latestScrollTop });
+    });
+  };
+
+  getItemSelector = () => {
+    if (this.props.viewMode === "list") {
+      return ".book-list-item-container";
+    }
+    if (this.props.viewMode === "card") {
+      return ".book-list-item";
+    }
+    return ".book-list-cover-item";
+  };
+
+  scheduleMetricsUpdate = () => {
+    if (this.metricsRaf) return;
+    this.metricsRaf = window.requestAnimationFrame(() => {
+      this.metricsRaf = 0;
+      this.updateItemMetrics();
+    });
+  };
+
+  updateItemMetrics = () => {
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer) return;
+    const selector = this.getItemSelector();
+    const item = scrollContainer.querySelector(selector) as HTMLElement | null;
+    if (!item) return;
+    const style = window.getComputedStyle(item);
+    const marginX =
+      parseFloat(style.marginLeft || "0") + parseFloat(style.marginRight || "0");
+    const marginY =
+      parseFloat(style.marginTop || "0") + parseFloat(style.marginBottom || "0");
+    const width = item.offsetWidth;
+    const height = item.offsetHeight;
+    if (!width || !height) return;
+    if (
+      width !== this.state.itemWidth ||
+      height !== this.state.itemHeight ||
+      marginX !== this.state.itemMarginX ||
+      marginY !== this.state.itemMarginY
+    ) {
+      this.setState({
+        itemWidth: width,
+        itemHeight: height,
+        itemMarginX: marginX,
+        itemMarginY: marginY,
+      });
+    }
+  };
+
+  getVirtualWindow = (totalItems: number) => {
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer || totalItems === 0) return null;
+    const { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
+    if (!itemHeight) return null;
+    const containerWidth = scrollContainer.clientWidth;
+    const containerHeight = scrollContainer.clientHeight;
+    const rowHeight = itemHeight + itemMarginY;
+    const itemSpaceX = itemWidth + itemMarginX || 1;
+    const itemsPerRow =
+      this.props.viewMode === "list"
+        ? 1
+        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
+    const totalRows = Math.ceil(totalItems / itemsPerRow);
+    const overscanRows = 2;
+    const scrollTop = this.state.scrollTop;
+    const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - overscanRows);
+    const endRow = Math.min(
+      totalRows - 1,
+      Math.floor((scrollTop + containerHeight) / rowHeight) + overscanRows
+    );
+    const startIndex = startRow * itemsPerRow;
+    const endIndex = Math.min(
+      totalItems - 1,
+      (endRow + 1) * itemsPerRow - 1
+    );
+    return {
+      startRow,
+      endRow,
+      startIndex,
+      endIndex,
+      totalRows,
+      rowHeight,
+      itemsPerRow,
+    };
+  };
+
   renderBookList = () => {
-    //get the book data according to different scenarios
     let books = this.state.fullBooksData;
-    return books.map((item: BookModel, index: number) => {
+    if (books.length === 0) return null;
+    const virtualWindow = this.getVirtualWindow(books.length);
+    const renderBooks = virtualWindow
+      ? books.slice(virtualWindow.startIndex, virtualWindow.endIndex + 1)
+      : books.slice(0, Math.min(books.length, 30));
+
+    const items = renderBooks.map((item: BookModel, index: number) => {
+      const realIndex = virtualWindow
+        ? virtualWindow.startIndex + index
+        : index;
       return this.props.viewMode === "list" ? (
         <BookListItem
           {...{
-            key: index,
+            key: item.key || realIndex,
             book: item,
           }}
         />
       ) : this.props.viewMode === "card" ? (
         <BookCardItem
           {...{
-            key: index,
+            key: item.key || realIndex,
             book: item,
             isSelected: this.props.selectedBooks.indexOf(item.key) > -1,
           }}
@@ -89,13 +238,32 @@ class BookList extends React.Component<BookListProps, BookListState> {
       ) : (
         <BookCoverItem
           {...{
-            key: index,
+            key: item.key || realIndex,
             book: item,
             isSelected: this.props.selectedBooks.indexOf(item.key) > -1,
           }}
         />
       );
     });
+
+    if (!virtualWindow) {
+      return items;
+    }
+
+    const topSpacerHeight = virtualWindow.startRow * virtualWindow.rowHeight;
+    const bottomSpacerHeight =
+      (virtualWindow.totalRows - virtualWindow.endRow - 1) *
+      virtualWindow.rowHeight;
+
+    return (
+      <>
+        <div style={{ height: topSpacerHeight, width: "100%", clear: "both" }} />
+        {items}
+        <div
+          style={{ height: bottomSpacerHeight, width: "100%", clear: "both" }}
+        />
+      </>
+    );
   };
 
   render() {
@@ -111,7 +279,9 @@ class BookList extends React.Component<BookListProps, BookListState> {
             }
           >
             <div className="book-list-container">
-              <ul className="book-list-item-box">{this.renderBookList()}</ul>
+              <ul className="book-list-item-box" ref={this.scrollContainer}>
+                {this.renderBookList()}
+              </ul>
             </div>
           </div>
         ) : (

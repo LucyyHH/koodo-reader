@@ -13,6 +13,11 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
+  private revokeCoverUrl = (cover?: string) => {
+    if (cover && cover.startsWith("blob:")) {
+      URL.revokeObjectURL(cover);
+    }
+  };
   constructor(props: BookCoverProps) {
     super(props);
     this.state = {
@@ -59,6 +64,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookCoverProps) {
     if (nextProps.book.key !== this.props.book.key) {
+      const prevCover = this.state.cover;
       let cover = await CoverUtil.getCover(nextProps.book);
       let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
       this.setState({
@@ -68,11 +74,14 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
           ) > -1,
         cover,
         isCoverExist,
-      });
-      this.setState({
         isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+      }, () => {
+        this.revokeCoverUrl(prevCover);
       });
     }
+  }
+  componentWillUnmount() {
+    this.revokeCoverUrl(this.state.cover);
   }
   handleMoreAction = (event: any) => {
     event.preventDefault();
@@ -223,6 +232,8 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
               <img
                 src={this.state.cover}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 style={
                   this.state.direction === "horizontal" ||
                   ConfigService.getReaderConfig("isDisableCrop") === "yes"

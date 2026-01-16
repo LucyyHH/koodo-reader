@@ -13,6 +13,11 @@ import { saveAs } from "file-saver";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 class BookListItem extends React.Component<BookItemProps, BookItemState> {
+  private revokeCoverUrl = (cover?: string) => {
+    if (cover && cover.startsWith("blob:")) {
+      URL.revokeObjectURL(cover);
+    }
+  };
   constructor(props: BookItemProps) {
     super(props);
     this.state = {
@@ -57,6 +62,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookItemProps) {
     if (nextProps.book.key !== this.props.book.key) {
+      const prevCover = this.state.cover;
       let cover = await CoverUtil.getCover(nextProps.book);
       let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
       this.setState({
@@ -66,11 +72,14 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
           ) > -1,
         cover,
         isCoverExist,
-      });
-      this.setState({
         isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+      }, () => {
+        this.revokeCoverUrl(prevCover);
       });
     }
+  }
+  componentWillUnmount() {
+    this.revokeCoverUrl(this.state.cover);
   }
   handleDeleteBook = () => {
     this.props.handleDeleteDialog(true);
@@ -215,6 +224,8 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
                 src={this.state.cover}
                 alt=""
                 className="book-item-image"
+                loading="lazy"
+                decoding="async"
                 style={{ width: "100%" }}
                 onLoad={(res: any) => {
                   if (

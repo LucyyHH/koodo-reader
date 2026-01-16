@@ -16,4 +16,9 @@ export interface BookListProps extends RouteComponentProps<any> {
 }
 export interface BookListState {
   fullBooksData: BookModel[];
+  itemWidth: number;
+  itemHeight: number;
+  itemMarginX: number;
+  itemMarginY: number;
+  scrollTop: number;
 }
