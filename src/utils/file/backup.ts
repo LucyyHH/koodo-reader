@@ -271,26 +271,21 @@ export const backupToSyncJson = async () => {
 export const zipBook = (zip: any, books: BookModel[]) => {
   return new Promise<boolean>(async (resolve) => {
     let bookZip = zip.folder("book");
-    let data: any = [];
-    books &&
-      books.forEach((item) => {
-        data.push(
-          BookUtil.fetchBook(
-            item.key,
-            item.format.toLowerCase(),
-            false,
-            item.path
-          )
-        );
-      });
     try {
-      let results = await Promise.all(data);
       for (let i = 0; i < books.length; i++) {
-        results[i] &&
+        const book = books[i];
+        const result = await BookUtil.fetchBook(
+          book.key,
+          book.format.toLowerCase(),
+          false,
+          book.path
+        );
+        if (result) {
           bookZip.file(
-            `${books[i].key}.${books[i].format.toLocaleLowerCase()}`,
-            results[i]
+            `${book.key}.${book.format.toLocaleLowerCase()}`,
+            result
           );
+        }
       }
       resolve(true);
     } catch (error) {
