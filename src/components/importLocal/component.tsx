@@ -16,6 +16,7 @@ import {
 } from "../../assets/lib/kookit-extra-browser.min";
 import CoverUtil from "../../utils/file/coverUtil";
 import {
+  calculateArrayBufferMD5,
   calculateFileMD5,
   fetchFileFromPath,
   supportedFormats,
@@ -174,29 +175,46 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
 
   getMd5WithBrowser = async (file: any) => {
     return new Promise<void>(async (resolve) => {
-      const md5 = await calculateFileMD5(file);
-      if (!md5) {
-        console.error("md5 error", file.name);
-        toast.error(this.props.t("Import failed") + ": " + file.name, {
-          duration: 4000,
-        });
-        return resolve();
-      } else {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const fileContent = (event.target as any)?.result as ArrayBuffer | null;
+        if (!fileContent) {
+          console.error("md5 error", file.name);
+          toast.error(this.props.t("Import failed") + ": " + file.name, {
+            duration: 4000,
+          });
+          return resolve();
+        }
+        const md5 = calculateArrayBufferMD5(fileContent);
+        if (!md5) {
+          console.error("md5 error", file.name);
+          toast.error(this.props.t("Import failed") + ": " + file.name, {
+            duration: 4000,
+          });
+          return resolve();
+        }
         try {
-          await this.handleBook(file, md5);
+          await this.handleBook(file, md5, fileContent);
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
           toast.error(errorMessage);
           console.error(error);
         }
-
         return resolve();
-      }
+      };
+      reader.onerror = (error) => {
+        console.error(error);
+        toast.error(this.props.t("Import failed") + ": " + file.name, {
+          duration: 4000,
+        });
+        return resolve();
+      };
+      reader.readAsArrayBuffer(file);
     });
   };
 
-  handleBook = (file: any, md5: string) => {
+  handleBook = (file: any, md5: string, fileContent?: ArrayBuffer) => {
     let extension = (file.name as string)
       .split(".")
       .reverse()[0]
@@ -227,9 +245,22 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
         return resolve();
       }
       if (!isRepeat) {
+        if (fileContent) {
+          await this.handleFileContent(
+            file,
+            md5,
+            extension,
+            bookName,
+            fileContent,
+            resolve
+          );
+          return;
+        }
         const reader = new FileReader();
         reader.onload = async (event) => {
-          const file_content = (event.target as any)?.result;
+          const file_content = (event.target as any)?.result as
+            | ArrayBuffer
+            | null;
           if (!file_content) {
             console.error("file_content error", bookName);
             toast.error(this.props.t("Import failed") + ": " + bookName, {
@@ -237,75 +268,90 @@ class ImportLocal extends React.Component<ImportLocalProps, ImportLocalState> {
             });
             return resolve();
           }
-          try {
-            let rendition = BookHelper.getRendition(
-              file_content,
-              {
-                format: extension.toUpperCase(),
-                readerMode: "",
-                charset: "",
-                animation:
-                  ConfigService.getReaderConfig("isSliding") === "yes"
-                    ? "sliding"
-                    : "",
-                convertChinese: ConfigService.getReaderConfig("convertChinese"),
-                parserRegex: "",
-                isDarkMode: "no",
-                isMobile: "no",
-                password: "",
-                isScannedPDF: "no",
-              },
-              Kookit
-            );
-            result = await BookHelper.generateBook(
-              bookName,
-              extension,
-              md5,
-              file.size,
-              file.path || clickFilePath,
-              file_content,
-              rendition
-            );
-            if (ConfigService.getReaderConfig("isUseOriginalName") === "yes") {
-              result.name = bookName;
-            }
-            if (
-              ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
-              extension !== "pdf"
-            ) {
-              let cache = await rendition.preCache(file_content);
-              if (cache !== "err" || cache) {
-                await BookUtil.addBook("cache-" + result.key, "zip", cache);
-              }
-            }
-          } catch (error) {
-            console.error(error, bookName);
-            toast.error(this.props.t("Import failed") + ": " + bookName, {
-              duration: 4000,
-            });
-            return resolve();
-          }
-
-          clickFilePath = "";
-
-          // get metadata failed
-          if (!result || !result.key) {
-            console.error("get metadata failed", bookName);
-            toast.error(this.props.t("Import failed") + ": " + bookName, {
-              duration: 4000,
-            });
-            return resolve();
-          }
-          await this.handleAddBook(
-            result as BookModel,
-            file_content as ArrayBuffer
+          await this.handleFileContent(
+            file,
+            md5,
+            extension,
+            bookName,
+            file_content,
+            resolve
           );
-
-          return resolve();
         };
         reader.readAsArrayBuffer(file);
       }
     });
+  };
+
+  handleFileContent = async (
+    file: any,
+    md5: string,
+    extension: string,
+    bookName: string,
+    file_content: ArrayBuffer,
+    resolve: () => void
+  ) => {
+    let result: BookModel;
+    try {
+      let rendition = BookHelper.getRendition(
+        file_content,
+        {
+          format: extension.toUpperCase(),
+          readerMode: "",
+          charset: "",
+          animation:
+            ConfigService.getReaderConfig("isSliding") === "yes"
+              ? "sliding"
+              : "",
+          convertChinese: ConfigService.getReaderConfig("convertChinese"),
+          parserRegex: "",
+          isDarkMode: "no",
+          isMobile: "no",
+          password: "",
+          isScannedPDF: "no",
+        },
+        Kookit
+      );
+      result = await BookHelper.generateBook(
+        bookName,
+        extension,
+        md5,
+        file.size,
+        file.path || clickFilePath,
+        file_content,
+        rendition
+      );
+      if (ConfigService.getReaderConfig("isUseOriginalName") === "yes") {
+        result.name = bookName;
+      }
+      if (
+        ConfigService.getReaderConfig("isPrecacheBook") === "yes" &&
+        extension !== "pdf"
+      ) {
+        let cache = await rendition.preCache(file_content);
+        if (cache !== "err" || cache) {
+          await BookUtil.addBook("cache-" + result.key, "zip", cache);
+        }
+      }
+    } catch (error) {
+      console.error(error, bookName);
+      toast.error(this.props.t("Import failed") + ": " + bookName, {
+        duration: 4000,
+      });
+      return resolve();
+    }
+
+    clickFilePath = "";
+
+    if (!result || !result.key) {
+      console.error("get metadata failed", bookName);
+      toast.error(this.props.t("Import failed") + ": " + bookName, {
+        duration: 4000,
+      });
+      return resolve();
+    }
+    await this.handleAddBook(result as BookModel, file_content as ArrayBuffer);
+
+    return resolve();
   };
   toggleMoreOptions = () => {
     this.setState((prevState) => ({

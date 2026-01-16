@@ -105,6 +105,9 @@ export const calculateFileMD5 = (file: File): Promise<string> => {
     loadNext();
   });
 };
+export const calculateArrayBufferMD5 = (arrayBuffer: ArrayBuffer): string => {
+  return SparkMD5.ArrayBuffer.hash(arrayBuffer);
+};
 export const vexPromptAsync = (message, placeholder = "", value = "") => {
   return new Promise((resolve) => {
     window.vex.dialog.buttons.YES.text = i18n.t("Confirm");
