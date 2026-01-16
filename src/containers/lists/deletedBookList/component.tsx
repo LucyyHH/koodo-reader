@@ -10,6 +10,7 @@ import { withRouter } from "react-router-dom";
 import ViewMode from "../../../components/viewMode";
 import DatabaseService from "../../../utils/storage/databaseService";
 import EmptyPage from "../../emptyPage";
+import CoverUtil from "../../../utils/file/coverUtil";
 
 class BookList extends React.Component<BookListProps, BookListState> {
   private scrollContainer: React.RefObject<HTMLUListElement>;
@@ -34,6 +35,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
   componentDidMount() {
     this.setupScrollListener();
     this.scheduleMetricsUpdate();
+    CoverUtil.migrateCoverStoreIfNeeded();
   }
   componentWillUnmount() {
     this.cleanupScrollListener();

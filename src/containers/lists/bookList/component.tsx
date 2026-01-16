@@ -13,6 +13,7 @@ import { Trans } from "react-i18next";
 import Book from "../../../models/Book";
 import { isElectron } from "react-device-detect";
 import DatabaseService from "../../../utils/storage/databaseService";
+import CoverUtil from "../../../utils/file/coverUtil";
 declare var window: any;
 let currentBookMode = "home";
 
@@ -83,6 +84,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
     }
 
     // 初始加载完整的书籍数据
+    await CoverUtil.migrateCoverStoreIfNeeded();
     await this.loadFullBooksData();
     this.scheduleMetricsUpdate();
   }

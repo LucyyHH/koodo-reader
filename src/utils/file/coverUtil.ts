@@ -5,6 +5,7 @@ import { Buffer } from "buffer";
 import SyncService from "../storage/syncService";
 import DatabaseService from "../storage/databaseService";
 import Book from "../../models/Book";
+import localforage from "localforage";
 import {
   CommonTool,
   ConfigService,
@@ -41,7 +42,40 @@ class AsyncQueue {
 }
 
 const saveCoverQueue = new AsyncQueue();
+const coverStore = localforage.createInstance({
+  name: "koodo-reader",
+  storeName: "covers",
+});
 class CoverUtil {
+  static async migrateCoverStoreIfNeeded() {
+    if (isElectron) return;
+    if (ConfigService.getReaderConfig("isUseLocal") === "yes") return;
+    if (ConfigService.getItem("isCoverMigrated") === "yes") return;
+    const books: Book[] = (await DatabaseService.getAllRecords("books")) || [];
+    let hasMigration = false;
+    for (let book of books) {
+      if (book.cover && book.cover.startsWith("data:image/")) {
+        await coverStore.setItem(book.key, book.cover);
+        book.cover = "";
+        hasMigration = true;
+      }
+    }
+    if (hasMigration) {
+      await DatabaseService.saveAllRecords(books, "books", false);
+    }
+    ConfigService.setItem("isCoverMigrated", "yes");
+  }
+
+  private static async getCoverFromStore(key: string) {
+    if (!key) return "";
+    const cover = await coverStore.getItem<string>(key);
+    return cover || "";
+  }
+
+  private static async saveCoverToStore(key: string, base64: string) {
+    if (!key || !base64) return;
+    await coverStore.setItem(key, base64);
+  }
   static async getCover(book: BookModel) {
     if (isElectron) {
       var fs = window.require("fs");
@@ -83,6 +117,9 @@ class CoverUtil {
       } else {
         let cover = book.cover;
         if (!cover && book.key) {
+          cover = await this.getCoverFromStore(book.key);
+        }
+        if (!cover && book.key) {
           let fullBook: Book | null = await DatabaseService.getRecord(
             book.key,
             "books"
@@ -93,6 +130,9 @@ class CoverUtil {
           return "";
         }
         if (cover.startsWith("data:image/")) {
+          if (book.key) {
+            await this.saveCoverToStore(book.key, cover);
+          }
           const result = this.convertCoverBase64(cover);
           const blob = new Blob([result.arrayBuffer], {
             type: `image/${result.extension}`,
@@ -132,6 +172,10 @@ class CoverUtil {
       } else {
         if (book.cover) {
           return true;
+        }
+        if (book.key) {
+          const cover = await this.getCoverFromStore(book.key);
+          if (cover) return true;
         }
         if (book.key) {
           let fullBook: Book | null = await DatabaseService.getRecord(
@@ -366,8 +410,17 @@ class CoverUtil {
         "books"
       );
       if (book) {
-        book.cover = base64;
-        await DatabaseService.updateRecord(book, "books");
+        if (
+          !isElectron &&
+          ConfigService.getReaderConfig("isUseLocal") !== "yes"
+        ) {
+          await this.saveCoverToStore(book.key, base64);
+          book.cover = "";
+          await DatabaseService.updateRecord(book, "books", false);
+        } else {
+          book.cover = base64;
+          await DatabaseService.updateRecord(book, "books");
+        }
       }
     });
   }
