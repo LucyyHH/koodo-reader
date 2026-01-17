@@ -624,20 +624,19 @@
     position: fixed !important;
     width: 94vw !important;
     max-width: 510px !important;
-    height: calc(100vh - 24px) !important;
-    max-height: calc(100vh - 24px) !important;
+    height: auto !important;
+    min-height: 300px !important;
+    max-height: 90vh !important;
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     animation: none !important;
     z-index: 2000 !important;
-    display: flex !important;
-    flex-direction: column !important;
   }
 
   .setting-dialog-info {
-    flex: 1 !important;
-    min-height: 0 !important;
+    height: auto !important;
+    max-height: 60vh !important;
     overflow-y: auto !important;
     padding-bottom: 12px !important;
   }
@@ -1165,25 +1164,68 @@
 
 @media screen and (max-height: 500px) and (orientation: landscape) {
   .setting-dialog-container {
+    position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 600px !important;
     height: calc(100vh - 16px) !important;
     max-height: calc(100vh - 16px) !important;
+    z-index: 2000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .setting-dialog-info {
+    flex: 1 !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding-bottom: 16px !important;
   }
 
   .backup-page-container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 80vw !important;
+    max-width: 500px !important;
+    height: auto !important;
+    min-height: 180px !important;
+    max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
+    z-index: 2000 !important;
+  }
+
+  .backup-page-option {
+    position: relative !important;
+    top: auto !important;
+    padding: 20px 10px 10px 10px !important;
+  }
+
+  .backup-page-backup {
+    height: auto !important;
+    min-height: 60px !important;
+  }
+
+  .icon-backup,
+  .icon-restore {
+    font-size: 40px !important;
+    margin-top: 0 !important;
+  }
+
+  .download-desk-container {
+    position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     height: auto !important;
-    max-height: calc(100vh - 16px) !important;
-    overflow-y: auto !important;
-  }
-
-  .download-desk-container {
-    height: auto !important;
     max-height: 90vh;
     overflow-y: auto;
+    z-index: 2000 !important;
   }
 }
