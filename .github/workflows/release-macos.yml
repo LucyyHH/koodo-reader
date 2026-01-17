@@ -55,16 +55,3 @@ jobs:
           name: Koodo-Reader-macOS-arm64-dmg
           path: dist/*arm64*.dmg
 
-      - name: Upload ZIP x64
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Koodo-Reader-macOS-x64-ZIP
-          path: dist/*x64*.zip
-
-      - name: Upload ZIP arm64
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Koodo-Reader-macOS-arm64-ZIP
-          path: dist/*arm64*.zip
