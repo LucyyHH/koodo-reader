@@ -284,7 +284,6 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
                 <img
                   src={this.state.cover}
                   alt=""
-                  loading="lazy"
                   decoding="async"
                   style={
                     this.state.direction === "horizontal" ||

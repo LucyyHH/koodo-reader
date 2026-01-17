@@ -265,7 +265,6 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
                   src={this.state.cover}
                   alt=""
                   className="book-item-image"
-                  loading="lazy"
                   decoding="async"
                   style={{ width: "100%" }}
                   onLoad={(res: any) => {

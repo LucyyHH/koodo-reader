@@ -132,21 +132,25 @@ class BookList extends React.Component<BookListProps, BookListState> {
       prevProps.mode !== this.props.mode ||
       prevProps.shelfTitle !== this.props.shelfTitle
     ) {
-      this.setState({
-        displayedBooksCount: this.getBookCountPerPage(),
-        isLoadingMore: false,
-      });
-      this.props.handleLoadMore(false);
-      // 滚动到顶部
-      if (this.scrollContainer.current) {
-        this.scrollContainer.current.scrollTop = 0;
-      }
-      if (this.state.scrollTop !== 0) {
-        this.setState({ scrollTop: 0 });
-      }
-      // 重新加载完整的书籍数据
-      this.loadFullBooksData();
-      this.scheduleMetricsUpdate();
+      // 先清空旧数据并重置滚动位置，避免渲染旧数据
+      this.setState(
+        {
+          displayedBooksCount: this.getBookCountPerPage(),
+          isLoadingMore: false,
+          scrollTop: 0,
+          fullBooksData: [], // 清空旧数据，避免显示旧封面
+        },
+        () => {
+          // 滚动到顶部
+          if (this.scrollContainer.current) {
+            this.scrollContainer.current.scrollTop = 0;
+          }
+          this.props.handleLoadMore(false);
+          // 状态重置完成后再加载新数据
+          this.loadFullBooksData();
+          this.scheduleMetricsUpdate();
+        }
+      );
     }
     if (prevProps.viewMode !== this.props.viewMode) {
       this.scheduleMetricsUpdate();

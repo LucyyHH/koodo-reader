@@ -239,7 +239,6 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
                   src={this.state.cover}
                   alt=""
                   className="book-item-image"
-                  loading="lazy"
                   decoding="async"
                   style={
                     this.state.direction === "horizontal" ||
