@@ -389,40 +389,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
   };
 
   getVirtualWindow = (totalItems: number) => {
-    const scrollContainer = this.scrollContainer.current;
-    if (!scrollContainer || totalItems === 0) return null;
-    const { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
-    if (!itemHeight) return null;
-    const containerWidth = scrollContainer.clientWidth;
-    const containerHeight = scrollContainer.clientHeight;
-    const rowHeight = itemHeight + itemMarginY;
-    const itemSpaceX = itemWidth + itemMarginX || 1;
-    const itemsPerRow =
-      this.props.viewMode === "list"
-        ? 1
-        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
-    const totalRows = Math.ceil(totalItems / itemsPerRow);
-    const overscanRows = 2;
-    const scrollTop = this.state.scrollTop;
-    const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - overscanRows);
-    const endRow = Math.min(
-      totalRows - 1,
-      Math.floor((scrollTop + containerHeight) / rowHeight) + overscanRows
-    );
-    const startIndex = startRow * itemsPerRow;
-    const endIndex = Math.min(
-      totalItems - 1,
-      (endRow + 1) * itemsPerRow - 1
-    );
-    return {
-      startRow,
-      endRow,
-      startIndex,
-      endIndex,
-      totalRows,
-      rowHeight,
-      itemsPerRow,
-    };
+    // 暂时禁用虚拟滚动，排查封面不显示的问题
+    return null;
   };
 
   handleKeyFilter = (items: any[], arr: string[]) => {
