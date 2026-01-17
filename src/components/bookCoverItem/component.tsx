@@ -201,6 +201,10 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     }
 
     const actionProps = { left: this.state.left, top: this.state.top };
+    const shouldShowEmptyCover =
+      !this.state.isCoverExist ||
+      (this.props.book.format === "PDF" &&
+        ConfigService.getReaderConfig("isDisablePDFCover") === "yes");
     return (
       <>
         <div
@@ -263,45 +267,44 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
             }
           >
             {this.shouldLoadHeavyAssets() ? (
-              !this.state.isCoverExist ||
-              (this.props.book.format === "PDF" &&
-                ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
-              <div
-                className="book-item-image"
-                style={{ width: "120px", height: "170px" }}
-              >
-                <EmptyCover
-                  {...{
-                    format: this.props.book.format,
-                    title: this.props.book.name,
-                    scale: 1.14,
+              shouldShowEmptyCover ? (
+                <div
+                  className="book-item-image"
+                  style={{ width: "120px", height: "170px" }}
+                >
+                  <EmptyCover
+                    {...{
+                      format: this.props.book.format,
+                      title: this.props.book.name,
+                      scale: 1.14,
+                    }}
+                  />
+                </div>
+              ) : (
+                <img
+                  src={this.state.cover}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  style={
+                    this.state.direction === "horizontal" ||
+                    ConfigService.getReaderConfig("isDisableCrop") === "yes"
+                      ? { width: "100%" }
+                      : { height: "100%" }
+                  }
+                  className="book-item-image"
+                  onLoad={(res: any) => {
+                    if (
+                      res.target.naturalHeight / res.target.naturalWidth >
+                      170 / 120
+                    ) {
+                      this.setState({ direction: "horizontal" });
+                    } else {
+                      this.setState({ direction: "vertical" });
+                    }
                   }}
                 />
-              </div>
-            ) : (
-              <img
-                src={this.state.cover}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                style={
-                  this.state.direction === "horizontal" ||
-                  ConfigService.getReaderConfig("isDisableCrop") === "yes"
-                    ? { width: "100%" }
-                    : { height: "100%" }
-                }
-                className="book-item-image"
-                onLoad={(res: any) => {
-                  if (
-                    res.target.naturalHeight / res.target.naturalWidth >
-                    170 / 120
-                  ) {
-                    this.setState({ direction: "horizontal" });
-                  } else {
-                    this.setState({ direction: "vertical" });
-                  }
-                }}
-              />
+              )
             ) : (
               <div
                 className="book-item-image"
