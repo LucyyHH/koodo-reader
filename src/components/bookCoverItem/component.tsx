@@ -23,6 +23,8 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     if (nextProps.isOpenActionDialog !== this.props.isOpenActionDialog)
       return true;
     if (nextProps.currentBook.key !== this.props.currentBook.key) return true;
+    if (nextProps.cachedCover !== this.props.cachedCover) return true;
+    if (nextProps.cachedCoverExist !== this.props.cachedCoverExist) return true;
     const nextBook = nextProps.book;
     const prevBook = this.props.book;
     if (nextBook !== prevBook) return true;
@@ -216,6 +218,14 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     BookUtil.redirectBook(this.props.book);
   };
   render() {
+    const resolvedCover =
+      this.props.cachedCover !== undefined
+        ? this.props.cachedCover
+        : this.state.cover;
+    const resolvedIsCoverExist =
+      (this.props.cachedCover !== undefined
+        ? this.props.cachedCoverExist
+        : this.state.isCoverExist) || !!resolvedCover;
     let percentage = "0";
 
     if (
@@ -236,7 +246,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
 
     const actionProps = { left: this.state.left, top: this.state.top };
     const shouldShowEmptyCover =
-      !this.state.isCoverExist ||
+      !resolvedIsCoverExist ||
       (this.props.book.format === "PDF" &&
         ConfigService.getReaderConfig("isDisablePDFCover") === "yes");
     return (
@@ -316,7 +326,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
                 </div>
               ) : (
                 <img
-                  src={this.state.cover}
+                  src={resolvedCover}
                   alt=""
                   decoding="async"
                   style={

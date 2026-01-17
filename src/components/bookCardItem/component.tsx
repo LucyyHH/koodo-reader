@@ -22,6 +22,8 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
     if (nextProps.isOpenActionDialog !== this.props.isOpenActionDialog)
       return true;
     if (nextProps.currentBook.key !== this.props.currentBook.key) return true;
+    if (nextProps.cachedCover !== this.props.cachedCover) return true;
+    if (nextProps.cachedCoverExist !== this.props.cachedCoverExist) return true;
     const nextBook = nextProps.book;
     const prevBook = this.props.book;
     if (nextBook !== prevBook) return true;
@@ -203,6 +205,14 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
     BookUtil.redirectBook(this.props.book);
   };
   render() {
+    const resolvedCover =
+      this.props.cachedCover !== undefined
+        ? this.props.cachedCover
+        : this.state.cover;
+    const resolvedIsCoverExist =
+      (this.props.cachedCover !== undefined
+        ? this.props.cachedCoverExist
+        : this.state.isCoverExist) || !!resolvedCover;
     let percentage = "0";
     if (
       ConfigService.getObjectConfig(
@@ -256,7 +266,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
             }
           >
             {this.shouldLoadHeavyAssets() ? (
-              !this.state.isCoverExist ||
+              !resolvedIsCoverExist ||
               (this.props.book.format === "PDF" &&
                 ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
                 <div className="book-item-image">
@@ -270,7 +280,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
                 </div>
               ) : (
                 <img
-                  src={this.state.cover}
+                  src={resolvedCover}
                   alt=""
                   className="book-item-image"
                   decoding="async"
