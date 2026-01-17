@@ -25,6 +25,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
   private metricsRaf = 0;
   private latestScrollTop = 0;
   private missingCoverKeys = new Set<string>();
+  private coverDiagnosticsTimer: number | null = null;
+  private lastMissingCoverLog = "";
 
   constructor(props: BookListProps) {
     super(props);
@@ -98,6 +100,10 @@ class BookList extends React.Component<BookListProps, BookListState> {
 
     // 清理封面缓存中的 blob URL
     this.revokeCachedCoverUrls(this.state.coverCache);
+    if (this.coverDiagnosticsTimer) {
+      window.clearTimeout(this.coverDiagnosticsTimer);
+      this.coverDiagnosticsTimer = null;
+    }
 
     // 清理 resize 监听器
     if (this.resizeHandler) {
@@ -184,6 +190,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
       },
       () => {
         this.scheduleMetricsUpdate();
+        this.scheduleCoverDiagnostics(sanitizedBooks);
         // 异步预加载封面，不阻塞渲染
         this.preloadCovers(sanitizedBooks);
       }
@@ -230,7 +237,36 @@ class BookList extends React.Component<BookListProps, BookListState> {
         coverCache: { ...prevState.coverCache, ...coverCache },
         coverCacheVersion: prevState.coverCacheVersion + 1,
       }));
+      this.scheduleCoverDiagnostics(books);
     }
+  };
+  private scheduleCoverDiagnostics = (books: BookModel[]) => {
+    if (this.coverDiagnosticsTimer) {
+      window.clearTimeout(this.coverDiagnosticsTimer);
+    }
+    this.coverDiagnosticsTimer = window.setTimeout(() => {
+      this.coverDiagnosticsTimer = null;
+      this.logMissingCovers(books);
+    }, 200);
+  };
+  private logMissingCovers = (books: BookModel[]) => {
+    if (!books || books.length === 0) return;
+    const missing = books
+      .filter((book) => {
+        const entry = this.state.coverCache[book.key];
+        return !entry || !entry.cover;
+      })
+      .map((book) => String(book.key));
+    const signature = `${missing.length}:${missing.slice(0, 10).join(",")}`;
+    if (signature === this.lastMissingCoverLog) return;
+    this.lastMissingCoverLog = signature;
+    console.warn("[cover-diagnostic] missing covers", {
+      totalBooks: books.length,
+      missingCount: missing.length,
+      sampleKeys: missing.slice(0, 10),
+      isElectron,
+      isUseLocal: ConfigService.getReaderConfig("isUseLocal"),
+    });
   };
   private revokeCachedCoverUrls = (
     coverCache: { [key: string]: { cover: string; isCoverExist: boolean } }
