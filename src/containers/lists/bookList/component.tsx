@@ -144,6 +144,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
       prevProps.mode !== this.props.mode ||
       prevProps.shelfTitle !== this.props.shelfTitle
     ) {
+      this.lastMissingCoverLog = "";
+      this.missingCoverKeys.clear();
       // 先释放旧缓存中的 blob URL，避免占用内存
       this.revokeCachedCoverUrls(this.state.coverCache);
       // 先清空旧数据并重置滚动位置，避免渲染旧数据
@@ -264,6 +266,9 @@ class BookList extends React.Component<BookListProps, BookListState> {
       totalBooks: books.length,
       missingCount: missing.length,
       sampleKeys: missing.slice(0, 10),
+      mode: this.props.mode,
+      shelfTitle: this.props.shelfTitle,
+      isSearch: this.props.isSearch,
       isElectron,
       isUseLocal: ConfigService.getReaderConfig("isUseLocal"),
     });
