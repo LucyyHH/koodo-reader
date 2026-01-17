@@ -46,6 +46,14 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       URL.revokeObjectURL(cover);
     }
   };
+  private revokeCoverUrlIfOwned = (
+    cover?: string,
+    isCoverFromCache?: boolean
+  ) => {
+    if (!isCoverFromCache) {
+      this.revokeCoverUrl(cover);
+    }
+  };
   constructor(props: BookItemProps) {
     super(props);
     this.state = {
@@ -60,6 +68,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       isHover: false,
       cover: "",
       isCoverExist: false,
+      isCoverFromCache: false,
       isBookOffline: true,
     };
   }
@@ -69,6 +78,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       this.setState({
         cover: this.props.cachedCover,
         isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
+        isCoverFromCache: true,
       });
     } else {
       // 否则自己加载
@@ -77,6 +87,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       this.setState({
         cover,
         isCoverExist: isCoverExist || !!cover,
+        isCoverFromCache: false,
       });
     }
     this.setState({
@@ -106,13 +117,15 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       nextProps.cachedCover !== this.props.cachedCover
     ) {
       const prevCover = this.state.cover;
+      const prevCoverFromCache = this.state.isCoverFromCache;
       this.setState(
         {
           cover: nextProps.cachedCover,
           isCoverExist: nextProps.cachedCoverExist || !!nextProps.cachedCover,
+          isCoverFromCache: true,
         },
         () => {
-          this.revokeCoverUrl(prevCover);
+          this.revokeCoverUrlIfOwned(prevCover, prevCoverFromCache);
         }
       );
       return;
@@ -120,6 +133,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
 
     if (nextProps.book.key !== this.props.book.key) {
       const prevCover = this.state.cover;
+      const prevCoverFromCache = this.state.isCoverFromCache;
       let cover = await CoverUtil.getCover(nextProps.book);
       let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
       this.setState(
@@ -130,16 +144,17 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
             ) > -1,
           cover,
           isCoverExist: isCoverExist || !!cover,
+          isCoverFromCache: false,
           isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
         },
         () => {
-          this.revokeCoverUrl(prevCover);
+          this.revokeCoverUrlIfOwned(prevCover, prevCoverFromCache);
         }
       );
     }
   }
   componentWillUnmount() {
-    this.revokeCoverUrl(this.state.cover);
+    this.revokeCoverUrlIfOwned(this.state.cover, this.state.isCoverFromCache);
   }
   handleDeleteBook = () => {
     this.props.handleDeleteDialog(true);

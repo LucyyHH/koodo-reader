@@ -94,6 +94,9 @@ class BookList extends React.Component<BookListProps, BookListState> {
     // 清理滚动监听器
     this.cleanupScrollListener();
 
+    // 清理封面缓存中的 blob URL
+    this.revokeCachedCoverUrls(this.state.coverCache);
+
     // 清理 resize 监听器
     if (this.resizeHandler) {
       window.removeEventListener("resize", this.resizeHandler);
@@ -133,6 +136,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
       prevProps.mode !== this.props.mode ||
       prevProps.shelfTitle !== this.props.shelfTitle
     ) {
+      // 先释放旧缓存中的 blob URL，避免占用内存
+      this.revokeCachedCoverUrls(this.state.coverCache);
       // 先清空旧数据并重置滚动位置，避免渲染旧数据
       this.setState(
         {
@@ -201,6 +206,15 @@ class BookList extends React.Component<BookListProps, BookListState> {
         coverCache: { ...prevState.coverCache, ...coverCache }
       }));
     }
+  };
+  private revokeCachedCoverUrls = (
+    coverCache: { [key: string]: { cover: string; isCoverExist: boolean } }
+  ) => {
+    Object.values(coverCache).forEach((entry) => {
+      if (entry.cover && entry.cover.startsWith("blob:")) {
+        URL.revokeObjectURL(entry.cover);
+      }
+    });
   };
   sanitizeBookCover = (book: BookModel) => {
     if (
