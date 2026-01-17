@@ -84,7 +84,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
       isCoverFromCache: false,
     });
     try {
-      const cover = await CoverUtil.getCover(this.props.book);
+      const cover = await CoverUtil.getCoverDataUrl(this.props.book);
       if (cover) {
         this.setState({
           cover,

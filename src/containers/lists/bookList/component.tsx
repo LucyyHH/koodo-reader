@@ -206,7 +206,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
     // 串行加载封面，避免并发问题
     for (const book of books) {
       try {
-        const cover = await CoverUtil.getCover(book);
+        const cover = await CoverUtil.getCoverDataUrl(book);
         const isCoverExist = await CoverUtil.isCoverExist(book);
         if (isCoverExist && !cover && !this.missingCoverKeys.has(book.key)) {
           this.missingCoverKeys.add(book.key);

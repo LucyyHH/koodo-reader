@@ -167,6 +167,34 @@ class CoverUtil {
       }
     }
   }
+  static async getCoverDataUrl(book: BookModel) {
+    if (!book) return "";
+    if (isElectron) {
+      return await this.getCover(book);
+    }
+    if (ConfigService.getReaderConfig("isUseLocal") === "yes") {
+      const coverList = await this.getLocalCoverList();
+      if (!coverList || coverList.length === 0) {
+        return book.cover || "";
+      }
+      const coverFile = coverList.find((item) => item.startsWith(book.key));
+      if (!coverFile) {
+        return book.cover || "";
+      }
+      const coverBuffer = await LocalFileManager.readFile(coverFile, "cover");
+      if (!coverBuffer) {
+        return book.cover || "";
+      }
+      const extension = coverFile.split(".").reverse()[0];
+      const base64 = CommonTool.arrayBufferToBase64(coverBuffer);
+      return base64
+        ? `data:image/${extension};base64,${base64}`
+        : book.cover || "";
+    }
+    const coverBase64 = await this.getCoverBase64(book);
+    if (coverBase64) return coverBase64;
+    return book.cover || "";
+  }
   static async isCoverExist(book: BookModel) {
     if (!book) return false;
     if (book.cover) {
