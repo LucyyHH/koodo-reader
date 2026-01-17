@@ -393,17 +393,27 @@ class BookList extends React.Component<BookListProps, BookListState> {
     if (!scrollContainer || totalItems === 0) return null;
     const { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
     if (!itemHeight) return null;
+    
+    const scrollTop = this.state.scrollTop;
+    
+    // 当在初始位置（scrollTop 很小）时，不使用虚拟滚动以确保所有封面正确加载
+    // 虚拟滚动的 itemsPerRow 计算可能与实际 CSS float 布局不一致
+    if (scrollTop < 50) {
+      return null;
+    }
+    
     const containerWidth = scrollContainer.clientWidth;
     const containerHeight = scrollContainer.clientHeight;
     const rowHeight = itemHeight + itemMarginY;
     const itemSpaceX = itemWidth + itemMarginX || 1;
+    // 减少 1 来保守估计每行项目数，避免因计算误差导致漏掉元素
     const itemsPerRow =
       this.props.viewMode === "list"
         ? 1
-        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
+        : Math.max(1, Math.floor(containerWidth / itemSpaceX) - 1) || 1;
     const totalRows = Math.ceil(totalItems / itemsPerRow);
-    const overscanRows = 2;
-    const scrollTop = this.state.scrollTop;
+    // 增加 overscan 行数以减少边界问题
+    const overscanRows = 4;
     const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - overscanRows);
     const endRow = Math.min(
       totalRows - 1,
@@ -480,12 +490,13 @@ class BookList extends React.Component<BookListProps, BookListState> {
     if (displayedBooks.length === 0) return null;
 
     const virtualWindow = this.getVirtualWindow(displayedBooks.length);
+    // 当 virtualWindow 为 null 时（初始状态或书籍较少），渲染所有 displayedBooks
     const renderBooks = virtualWindow
       ? displayedBooks.slice(
           virtualWindow.startIndex,
           virtualWindow.endIndex + 1
         )
-      : displayedBooks.slice(0, Math.min(displayedBooks.length, 30));
+      : displayedBooks;
 
     const items = renderBooks.map((item: BookModel, index: number) => {
       const resolvedBook = this.props.isSearch
