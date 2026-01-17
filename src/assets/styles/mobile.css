@@ -631,11 +631,15 @@
     transform: translate(-50%, -50%) !important;
     animation: none !important;
     z-index: 2000 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .setting-dialog-info {
-    height: calc(100% - 150px) !important;
+    flex: 1 !important;
+    min-height: 0 !important;
     overflow-y: auto !important;
+    padding-bottom: 12px !important;
   }
 
   /* ---- 备份对话框 ---- */
@@ -1174,6 +1178,7 @@
     transform: translate(-50%, -50%) !important;
     height: auto !important;
     max-height: calc(100vh - 16px) !important;
+    overflow-y: auto !important;
   }
 
   .download-desk-container {
