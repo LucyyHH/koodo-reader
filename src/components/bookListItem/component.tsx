@@ -77,7 +77,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   }
   async componentDidMount() {
     // 如果有预加载的封面，直接使用
-    if (this.props.cachedCover !== undefined) {
+    if (this.props.cachedCover) {
       this.setState({
         cover: this.props.cachedCover,
         isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
@@ -116,7 +116,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   async UNSAFE_componentWillReceiveProps(nextProps: BookItemProps) {
     // 如果预加载的封面更新了，使用新的封面
     if (
-      nextProps.cachedCover !== undefined &&
+      nextProps.cachedCover &&
       nextProps.cachedCover !== this.props.cachedCover
     ) {
       const prevCover = this.state.cover;
@@ -232,11 +232,11 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   };
   render() {
     const resolvedCover =
-      this.props.cachedCover !== undefined
+      this.props.cachedCover
         ? this.props.cachedCover
         : this.state.cover;
     const resolvedIsCoverExist =
-      (this.props.cachedCover !== undefined
+      (this.props.cachedCover
         ? this.props.cachedCoverExist
         : this.state.isCoverExist) || !!resolvedCover;
     const actionProps = { left: this.state.left, top: this.state.top };

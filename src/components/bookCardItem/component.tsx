@@ -76,7 +76,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
 
   async componentDidMount() {
     // 如果有预加载的封面，直接使用
-    if (this.props.cachedCover !== undefined) {
+    if (this.props.cachedCover) {
       this.setState({
         cover: this.props.cachedCover,
         isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
@@ -117,7 +117,7 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   async UNSAFE_componentWillReceiveProps(nextProps: BookCardProps) {
     // 如果预加载的封面更新了，使用新的封面
     if (
-      nextProps.cachedCover !== undefined &&
+      nextProps.cachedCover &&
       nextProps.cachedCover !== this.props.cachedCover
     ) {
       const prevCover = this.state.cover;
@@ -207,11 +207,11 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   };
   render() {
     const resolvedCover =
-      this.props.cachedCover !== undefined
+      this.props.cachedCover
         ? this.props.cachedCover
         : this.state.cover;
     const resolvedIsCoverExist =
-      (this.props.cachedCover !== undefined
+      (this.props.cachedCover
         ? this.props.cachedCoverExist
         : this.state.isCoverExist) || !!resolvedCover;
     let percentage = "0";

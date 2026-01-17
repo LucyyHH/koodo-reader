@@ -198,7 +198,11 @@ class BookList extends React.Component<BookListProps, BookListState> {
       try {
         const cover = await CoverUtil.getCover(book);
         const isCoverExist = await CoverUtil.isCoverExist(book);
-        coverCache[book.key] = { cover, isCoverExist: isCoverExist || !!cover };
+        if (cover) {
+          coverCache[book.key] = { cover, isCoverExist: true };
+        } else if (!isCoverExist) {
+          coverCache[book.key] = { cover: "", isCoverExist: false };
+        }
       } catch (e) {
         coverCache[book.key] = { cover: "", isCoverExist: false };
       }
