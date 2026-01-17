@@ -24,6 +24,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
   private scrollRaf = 0;
   private metricsRaf = 0;
   private latestScrollTop = 0;
+  private missingCoverKeys = new Set<string>();
 
   constructor(props: BookListProps) {
     super(props);
@@ -198,12 +199,29 @@ class BookList extends React.Component<BookListProps, BookListState> {
       try {
         const cover = await CoverUtil.getCover(book);
         const isCoverExist = await CoverUtil.isCoverExist(book);
+        if (isCoverExist && !cover && !this.missingCoverKeys.has(book.key)) {
+          this.missingCoverKeys.add(book.key);
+          console.warn("[cover-debug] cover exists but empty url", {
+            key: book.key,
+            format: book.format,
+            isElectron,
+            isUseLocal: ConfigService.getReaderConfig("isUseLocal"),
+          });
+        }
         if (cover) {
           coverCache[book.key] = { cover, isCoverExist: true };
         } else if (!isCoverExist) {
           coverCache[book.key] = { cover: "", isCoverExist: false };
         }
       } catch (e) {
+        if (!this.missingCoverKeys.has(book.key)) {
+          this.missingCoverKeys.add(book.key);
+          console.warn("[cover-debug] cover load failed", {
+            key: book.key,
+            format: book.format,
+            error: e,
+          });
+        }
         coverCache[book.key] = { cover: "", isCoverExist: false };
       }
       
