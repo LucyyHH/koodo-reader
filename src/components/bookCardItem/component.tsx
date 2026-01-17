@@ -65,9 +65,13 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   async componentDidMount() {
     const shouldLoad = this.shouldLoadHeavyAssets();
     if (shouldLoad) {
+      // 添加小延迟，避免多个组件同时加载封面导致的并发问题
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+      const cover = await CoverUtil.getCover(this.props.book);
+      const isCoverExist = await CoverUtil.isCoverExist(this.props.book);
       this.setState({
-        cover: await CoverUtil.getCover(this.props.book),
-        isCoverExist: await CoverUtil.isCoverExist(this.props.book),
+        cover,
+        isCoverExist: isCoverExist || !!cover,
       });
     }
     this.setState({
