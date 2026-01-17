@@ -72,9 +72,32 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       cover: "",
       isCoverExist: false,
       isCoverFromCache: false,
+      hasCoverError: false,
       isBookOffline: true,
     };
   }
+  private handleCoverError = async () => {
+    if (this.state.hasCoverError) return;
+    this.setState({
+      hasCoverError: true,
+      cover: "",
+      isCoverExist: false,
+      isCoverFromCache: false,
+    });
+    try {
+      const cover = await CoverUtil.getCover(this.props.book);
+      if (cover) {
+        this.setState({
+          cover,
+          isCoverExist: true,
+          isCoverFromCache: false,
+          hasCoverError: false,
+        });
+      }
+    } catch (e) {
+      // keep fallback state
+    }
+  };
   async componentDidMount() {
     // 如果有预加载的封面，直接使用
     if (this.props.cachedCover) {
@@ -82,6 +105,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
         cover: this.props.cachedCover,
         isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
         isCoverFromCache: true,
+        hasCoverError: false,
       });
     } else {
       // 否则自己加载
@@ -91,6 +115,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
         cover,
         isCoverExist: isCoverExist || !!cover,
         isCoverFromCache: false,
+        hasCoverError: false,
       });
     }
     this.setState({
@@ -126,6 +151,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
           cover: nextProps.cachedCover,
           isCoverExist: nextProps.cachedCoverExist || !!nextProps.cachedCover,
           isCoverFromCache: true,
+          hasCoverError: false,
         },
         () => {
           this.revokeCoverUrlIfOwned(prevCover, prevCoverFromCache);
@@ -148,6 +174,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
           cover,
           isCoverExist: isCoverExist || !!cover,
           isCoverFromCache: false,
+          hasCoverError: false,
           isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
         },
         () => {
@@ -232,11 +259,11 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   };
   render() {
     const resolvedCover =
-      this.props.cachedCover
+      this.props.cachedCover && !this.state.hasCoverError
         ? this.props.cachedCover
         : this.state.cover;
     const resolvedIsCoverExist =
-      (this.props.cachedCover
+      (this.props.cachedCover && !this.state.hasCoverError
         ? this.props.cachedCoverExist
         : this.state.isCoverExist) || !!resolvedCover;
     const actionProps = { left: this.state.left, top: this.state.top };
@@ -311,6 +338,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
                   alt=""
                   className="book-item-image"
                   decoding="async"
+                  onError={this.handleCoverError}
                   style={{ width: "100%" }}
                   onLoad={(res: any) => {
                     if (

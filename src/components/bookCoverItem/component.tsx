@@ -78,9 +78,33 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
       cover: "",
       isCoverExist: false,
       isCoverFromCache: false,
+      hasCoverError: false,
       isBookOffline: true,
     };
   }
+
+  private handleCoverError = async () => {
+    if (this.state.hasCoverError) return;
+    this.setState({
+      hasCoverError: true,
+      cover: "",
+      isCoverExist: false,
+      isCoverFromCache: false,
+    });
+    try {
+      const cover = await CoverUtil.getCover(this.props.book);
+      if (cover) {
+        this.setState({
+          cover,
+          isCoverExist: true,
+          isCoverFromCache: false,
+          hasCoverError: false,
+        });
+      }
+    } catch (e) {
+      // keep fallback state
+    }
+  };
 
   async componentDidMount() {
     // 如果有预加载的封面，直接使用
@@ -89,6 +113,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
         cover: this.props.cachedCover,
         isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
         isCoverFromCache: true,
+        hasCoverError: false,
       });
     } else {
       // 否则自己加载
@@ -98,6 +123,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
         cover,
         isCoverExist: isCoverExist || !!cover,
         isCoverFromCache: false,
+        hasCoverError: false,
       });
     }
     this.setState({
@@ -135,6 +161,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
           cover: nextProps.cachedCover,
           isCoverExist: nextProps.cachedCoverExist || !!nextProps.cachedCover,
           isCoverFromCache: true,
+          hasCoverError: false,
         },
         () => {
           this.revokeCoverUrlIfOwned(prevCover, prevCoverFromCache);
@@ -157,6 +184,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
           cover,
           isCoverExist: isCoverExist || !!cover,
           isCoverFromCache: false,
+          hasCoverError: false,
           isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
           desc: this.getDescriptionText(nextProps.book.description),
         },
@@ -220,11 +248,11 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
   };
   render() {
     const resolvedCover =
-      this.props.cachedCover
+      this.props.cachedCover && !this.state.hasCoverError
         ? this.props.cachedCover
         : this.state.cover;
     const resolvedIsCoverExist =
-      (this.props.cachedCover
+      (this.props.cachedCover && !this.state.hasCoverError
         ? this.props.cachedCoverExist
         : this.state.isCoverExist) || !!resolvedCover;
     let percentage = "0";
@@ -330,6 +358,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
                   src={resolvedCover}
                   alt=""
                   decoding="async"
+                  onError={this.handleCoverError}
                   style={
                     this.state.direction === "horizontal" ||
                     ConfigService.getReaderConfig("isDisableCrop") === "yes"

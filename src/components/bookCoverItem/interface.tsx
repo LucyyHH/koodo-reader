@@ -33,5 +33,6 @@ export interface BookCoverState {
   cover: string;
   isCoverExist: boolean;
   isCoverFromCache: boolean;
+  hasCoverError: boolean;
   isBookOffline: boolean;
 }
