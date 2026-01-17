@@ -13,6 +13,9 @@ import { saveAs } from "file-saver";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 class BookListItem extends React.Component<BookItemProps, BookItemState> {
+  private shouldLoadHeavyAssets = (props: BookItemProps = this.props) => {
+    return !props.isSelectBook || props.isSelected;
+  };
   shouldComponentUpdate(nextProps: BookItemProps, nextState: BookItemState) {
     if (nextState !== this.state) return true;
     if (nextProps.isSelected !== this.props.isSelected) return true;
@@ -61,10 +64,13 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
     };
   }
   async componentDidMount() {
-    this.setState({
-      cover: await CoverUtil.getCover(this.props.book),
-      isCoverExist: await CoverUtil.isCoverExist(this.props.book),
-    });
+    const shouldLoad = this.shouldLoadHeavyAssets();
+    if (shouldLoad) {
+      this.setState({
+        cover: await CoverUtil.getCover(this.props.book),
+        isCoverExist: await CoverUtil.isCoverExist(this.props.book),
+      });
+    }
     this.setState({
       isBookOffline: await BookUtil.isBookOffline(this.props.book.key),
     });
@@ -86,21 +92,31 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
     }
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookItemProps) {
-    if (nextProps.book.key !== this.props.book.key) {
+    const shouldLoad = this.shouldLoadHeavyAssets(nextProps);
+    const wasShouldLoad = this.shouldLoadHeavyAssets(this.props);
+    if (
+      nextProps.book.key !== this.props.book.key ||
+      (shouldLoad && !wasShouldLoad)
+    ) {
       const prevCover = this.state.cover;
-      let cover = await CoverUtil.getCover(nextProps.book);
-      let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
-      this.setState({
-        isFavorite:
-          ConfigService.getAllListConfig("favoriteBooks").indexOf(
-            nextProps.book.key
-          ) > -1,
-        cover,
-        isCoverExist,
-        isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
-      }, () => {
-        this.revokeCoverUrl(prevCover);
-      });
+      let cover = shouldLoad ? await CoverUtil.getCover(nextProps.book) : "";
+      let isCoverExist = shouldLoad
+        ? await CoverUtil.isCoverExist(nextProps.book)
+        : false;
+      this.setState(
+        {
+          isFavorite:
+            ConfigService.getAllListConfig("favoriteBooks").indexOf(
+              nextProps.book.key
+            ) > -1,
+          cover,
+          isCoverExist,
+          isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+        },
+        () => {
+          this.revokeCoverUrl(prevCover);
+        }
+      );
     }
   }
   componentWillUnmount() {
@@ -179,7 +195,6 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   };
   render() {
     const actionProps = { left: this.state.left, top: this.state.top };
-
     let percentage = "0";
 
     if (
@@ -206,9 +221,67 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
             this.handleMoreAction(event);
           }}
         >
-          {!this.state.isCoverExist ||
-          (this.props.book.format === "PDF" &&
-            ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
+          {this.shouldLoadHeavyAssets() ? (
+            !this.state.isCoverExist ||
+            (this.props.book.format === "PDF" &&
+              ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
+              <div
+                className="book-item-list-cover"
+                onClick={() => {
+                  this.handleJump();
+                }}
+                style={{ height: "65px" }}
+                onMouseEnter={() => {
+                  this.setState({ isHover: true });
+                }}
+                onMouseLeave={() => {
+                  this.setState({ isHover: false });
+                }}
+              >
+                <div className="book-item-image" style={{ height: "65px" }}>
+                  <EmptyCover
+                    {...{
+                      format: this.props.book.format,
+                      title: this.props.book.name,
+                      scale: 0.43,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div
+                className="book-item-list-cover"
+                onClick={() => {
+                  this.handleJump();
+                }}
+                onMouseEnter={() => {
+                  this.setState({ isHover: true });
+                }}
+                onMouseLeave={() => {
+                  this.setState({ isHover: false });
+                }}
+              >
+                <img
+                  src={this.state.cover}
+                  alt=""
+                  className="book-item-image"
+                  loading="lazy"
+                  decoding="async"
+                  style={{ width: "100%" }}
+                  onLoad={(res: any) => {
+                    if (
+                      res.target.naturalHeight / res.target.naturalWidth >
+                      74 / 47
+                    ) {
+                      this.setState({ direction: "horizontal" });
+                    } else {
+                      this.setState({ direction: "vertical" });
+                    }
+                  }}
+                />
+              </div>
+            )
+          ) : (
             <div
               className="book-item-list-cover"
               onClick={() => {
@@ -231,38 +304,6 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
                   }}
                 />
               </div>
-            </div>
-          ) : (
-            <div
-              className="book-item-list-cover"
-              onClick={() => {
-                this.handleJump();
-              }}
-              onMouseEnter={() => {
-                this.setState({ isHover: true });
-              }}
-              onMouseLeave={() => {
-                this.setState({ isHover: false });
-              }}
-            >
-              <img
-                src={this.state.cover}
-                alt=""
-                className="book-item-image"
-                loading="lazy"
-                decoding="async"
-                style={{ width: "100%" }}
-                onLoad={(res: any) => {
-                  if (
-                    res.target.naturalHeight / res.target.naturalWidth >
-                    74 / 47
-                  ) {
-                    this.setState({ direction: "horizontal" });
-                  } else {
-                    this.setState({ direction: "vertical" });
-                  }
-                }}
-              />
             </div>
           )}
           {this.props.isSelectBook || this.state.isHover ? (
@@ -308,23 +349,24 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
                 {this.props.book.name}
               </div>
             </div>
-
-            <p className="book-item-list-percentage">
-              {percentage && !isNaN(parseFloat(percentage))
-                ? percentage === "0"
-                  ? "New"
-                  : percentage === "1"
-                  ? "Done"
-                  : (parseFloat(percentage) * 100).toFixed(2)
-                : "0"}
-              {percentage &&
-                !isNaN(parseFloat(percentage)) &&
-                percentage !== "0" &&
-                percentage !== "1" && <span>%</span>}
-            </p>
-            <div className="book-item-list-author">
-              <Trans>{this.props.book.author || "Unknown author"}</Trans>
-            </div>
+            <>
+              <p className="book-item-list-percentage">
+                {percentage && !isNaN(parseFloat(percentage))
+                  ? percentage === "0"
+                    ? "New"
+                    : percentage === "1"
+                    ? "Done"
+                    : (parseFloat(percentage) * 100).toFixed(2)
+                  : "0"}
+                {percentage &&
+                  !isNaN(parseFloat(percentage)) &&
+                  percentage !== "0" &&
+                  percentage !== "1" && <span>%</span>}
+              </p>
+              <div className="book-item-list-author">
+                <Trans>{this.props.book.author || "Unknown author"}</Trans>
+              </div>
+            </>
           </p>
         </div>
         {this.props.isOpenActionDialog &&

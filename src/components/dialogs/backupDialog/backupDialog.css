@@ -224,19 +224,34 @@
   /* padding-left: 10px; */
   cursor: pointer;
   width: 80px;
+  vertical-align: middle;
 }
 
 /* 移动端适配 - 防止弹窗闪现 */
 @media screen and (max-width: 768px) {
   .backup-page-container {
-    width: 90vw;
-    max-width: 400px;
+    position: fixed;
+    width: 94vw;
+    max-width: 454px;
     left: 50%;
-    height: auto;
+    height: 90vh;
     min-height: 250px;
-    max-height: 350px;
+    max-height: 360px;
     top: 50%;
     transform: translate(-50%, -50%);
     animation: none;
+  }
+
+  .backup-page-drive-container {
+    height: calc(100% - 80px);
+    overflow-y: auto;
+  }
+
+  .backup-source-dropdown {
+    height: 22px;
+    line-height: 22px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding: 0 6px;
   }
 }

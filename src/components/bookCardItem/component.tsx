@@ -12,6 +12,9 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCardItem extends React.Component<BookCardProps, BookCardState> {
+  private shouldLoadHeavyAssets = (props: BookCardProps = this.props) => {
+    return !props.isSelectBook || props.isSelected;
+  };
   shouldComponentUpdate(nextProps: BookCardProps, nextState: BookCardState) {
     if (nextState !== this.state) return true;
     if (nextProps.isSelected !== this.props.isSelected) return true;
@@ -60,10 +63,13 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   }
 
   async componentDidMount() {
-    this.setState({
-      cover: await CoverUtil.getCover(this.props.book),
-      isCoverExist: await CoverUtil.isCoverExist(this.props.book),
-    });
+    const shouldLoad = this.shouldLoadHeavyAssets();
+    if (shouldLoad) {
+      this.setState({
+        cover: await CoverUtil.getCover(this.props.book),
+        isCoverExist: await CoverUtil.isCoverExist(this.props.book),
+      });
+    }
     this.setState({
       isBookOffline: await BookUtil.isBookOffline(this.props.book.key),
     });
@@ -87,21 +93,31 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
     }
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookCardProps) {
-    if (nextProps.book.key !== this.props.book.key) {
+    const shouldLoad = this.shouldLoadHeavyAssets(nextProps);
+    const wasShouldLoad = this.shouldLoadHeavyAssets(this.props);
+    if (
+      nextProps.book.key !== this.props.book.key ||
+      (shouldLoad && !wasShouldLoad)
+    ) {
       const prevCover = this.state.cover;
-      let cover = await CoverUtil.getCover(nextProps.book);
-      let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
-      this.setState({
-        isFavorite:
-          ConfigService.getAllListConfig("favoriteBooks").indexOf(
-            nextProps.book.key
-          ) > -1,
-        cover,
-        isCoverExist,
-        isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
-      }, () => {
-        this.revokeCoverUrl(prevCover);
-      });
+      let cover = shouldLoad ? await CoverUtil.getCover(nextProps.book) : "";
+      let isCoverExist = shouldLoad
+        ? await CoverUtil.isCoverExist(nextProps.book)
+        : false;
+      this.setState(
+        {
+          isFavorite:
+            ConfigService.getAllListConfig("favoriteBooks").indexOf(
+              nextProps.book.key
+            ) > -1,
+          cover,
+          isCoverExist,
+          isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+        },
+        () => {
+          this.revokeCoverUrl(prevCover);
+        }
+      );
     }
   }
   componentWillUnmount() {
@@ -205,9 +221,45 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
                   }
             }
           >
-            {!this.state.isCoverExist ||
-            (this.props.book.format === "PDF" &&
-              ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
+            {this.shouldLoadHeavyAssets() ? (
+              !this.state.isCoverExist ||
+              (this.props.book.format === "PDF" &&
+                ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
+                <div className="book-item-image">
+                  <EmptyCover
+                    {...{
+                      format: this.props.book.format,
+                      title: this.props.book.name,
+                      scale: 1,
+                    }}
+                  />
+                </div>
+              ) : (
+                <img
+                  src={this.state.cover}
+                  alt=""
+                  className="book-item-image"
+                  loading="lazy"
+                  decoding="async"
+                  style={
+                    this.state.direction === "horizontal" ||
+                    ConfigService.getReaderConfig("isDisableCrop") === "yes"
+                      ? { width: "100%" }
+                      : { height: "100%" }
+                  }
+                  onLoad={(res: any) => {
+                    if (
+                      res.target.naturalHeight / res.target.naturalWidth >
+                      137 / 105
+                    ) {
+                      this.setState({ direction: "horizontal" });
+                    } else {
+                      this.setState({ direction: "vertical" });
+                    }
+                  }}
+                ></img>
+              )
+            ) : (
               <div className="book-item-image">
                 <EmptyCover
                   {...{
@@ -217,30 +269,6 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
                   }}
                 />
               </div>
-            ) : (
-              <img
-                src={this.state.cover}
-                alt=""
-                className="book-item-image"
-                loading="lazy"
-                decoding="async"
-                style={
-                  this.state.direction === "horizontal" ||
-                  ConfigService.getReaderConfig("isDisableCrop") === "yes"
-                    ? { width: "100%" }
-                    : { height: "100%" }
-                }
-                onLoad={(res: any) => {
-                  if (
-                    res.target.naturalHeight / res.target.naturalWidth >
-                    137 / 105
-                  ) {
-                    this.setState({ direction: "horizontal" });
-                  } else {
-                    this.setState({ direction: "vertical" });
-                  }
-                }}
-              ></img>
             )}
           </div>
           {this.props.isSelectBook || this.state.isHover ? (

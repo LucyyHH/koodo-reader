@@ -13,6 +13,9 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
+  private shouldLoadHeavyAssets = (props: BookCoverProps = this.props) => {
+    return !props.isSelectBook || props.isSelected;
+  };
   shouldComponentUpdate(nextProps: BookCoverProps, nextState: BookCoverState) {
     if (nextState !== this.state) return true;
     if (nextProps.isSelected !== this.props.isSelected) return true;
@@ -68,12 +71,15 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
   }
 
   async componentDidMount() {
+    const shouldLoad = this.shouldLoadHeavyAssets();
+    if (shouldLoad) {
+      this.setState({
+        cover: await CoverUtil.getCover(this.props.book),
+        isCoverExist: await CoverUtil.isCoverExist(this.props.book),
+      });
+    }
     this.setState({
-      cover: await CoverUtil.getCover(this.props.book),
-      isCoverExist: await CoverUtil.isCoverExist(this.props.book),
       desc: this.getDescriptionText(this.props.book.description),
-    });
-    this.setState({
       isBookOffline: await BookUtil.isBookOffline(this.props.book.key),
     });
     let filePath = "";
@@ -95,22 +101,32 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     }
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookCoverProps) {
-    if (nextProps.book.key !== this.props.book.key) {
+    const shouldLoad = this.shouldLoadHeavyAssets(nextProps);
+    const wasShouldLoad = this.shouldLoadHeavyAssets(this.props);
+    if (
+      nextProps.book.key !== this.props.book.key ||
+      (shouldLoad && !wasShouldLoad)
+    ) {
       const prevCover = this.state.cover;
-      let cover = await CoverUtil.getCover(nextProps.book);
-      let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
-      this.setState({
-        isFavorite:
-          ConfigService.getAllListConfig("favoriteBooks").indexOf(
-            nextProps.book.key
-          ) > -1,
-        cover,
-        isCoverExist,
-        isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
-        desc: this.getDescriptionText(nextProps.book.description),
-      }, () => {
-        this.revokeCoverUrl(prevCover);
-      });
+      let cover = shouldLoad ? await CoverUtil.getCover(nextProps.book) : "";
+      let isCoverExist = shouldLoad
+        ? await CoverUtil.isCoverExist(nextProps.book)
+        : false;
+      this.setState(
+        {
+          isFavorite:
+            ConfigService.getAllListConfig("favoriteBooks").indexOf(
+              nextProps.book.key
+            ) > -1,
+          cover,
+          isCoverExist,
+          isBookOffline: await BookUtil.isBookOffline(nextProps.book.key),
+          desc: this.getDescriptionText(nextProps.book.description),
+        },
+        () => {
+          this.revokeCoverUrl(prevCover);
+        }
+      );
     } else if (nextProps.book.description !== this.props.book.description) {
       this.setState({
         desc: this.getDescriptionText(nextProps.book.description),
@@ -246,9 +262,10 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
                   }
             }
           >
-            {!this.state.isCoverExist ||
-            (this.props.book.format === "PDF" &&
-              ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
+            {this.shouldLoadHeavyAssets() ? (
+              !this.state.isCoverExist ||
+              (this.props.book.format === "PDF" &&
+                ConfigService.getReaderConfig("isDisablePDFCover") === "yes") ? (
               <div
                 className="book-item-image"
                 style={{ width: "120px", height: "170px" }}
@@ -285,6 +302,19 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
                   }
                 }}
               />
+            ) : (
+              <div
+                className="book-item-image"
+                style={{ width: "120px", height: "170px" }}
+              >
+                <EmptyCover
+                  {...{
+                    format: this.props.book.format,
+                    title: this.props.book.name,
+                    scale: 1.14,
+                  }}
+                />
+              </div>
             )}
             {this.props.isSelectBook || this.state.isHover ? (
               <span
@@ -334,20 +364,22 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
             )}
             {this.props.book.name}
           </p>
-          <p className="book-cover-item-author">
-            <Trans>Author</Trans>:&nbsp;
-            <Trans>{this.props.book.author || "Unknown author"}</Trans>
-          </p>
-          <p className="book-cover-item-author">
-            <Trans>Publisher</Trans>:&nbsp;
-            <Trans>{this.props.book.publisher}</Trans>
-          </p>
-          <div className="book-cover-item-desc">
-            <Trans>Description</Trans>:&nbsp;
-            <div className="book-cover-item-desc-detail">
-              {this.state.desc ? this.state.desc : <Trans>Empty</Trans>}
+          <>
+            <p className="book-cover-item-author">
+              <Trans>Author</Trans>:&nbsp;
+              <Trans>{this.props.book.author || "Unknown author"}</Trans>
+            </p>
+            <p className="book-cover-item-author">
+              <Trans>Publisher</Trans>:&nbsp;
+              <Trans>{this.props.book.publisher}</Trans>
+            </p>
+            <div className="book-cover-item-desc">
+              <Trans>Description</Trans>:&nbsp;
+              <div className="book-cover-item-desc-detail">
+                {this.state.desc ? this.state.desc : <Trans>Empty</Trans>}
+              </div>
             </div>
-          </div>
+          </>
         </div>
         {this.props.isOpenActionDialog &&
         this.props.book.key === this.props.currentBook.key ? (
