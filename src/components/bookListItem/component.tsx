@@ -13,6 +13,9 @@ import { saveAs } from "file-saver";
 import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 class BookListItem extends React.Component<BookItemProps, BookItemState> {
+  private retryTimer: NodeJS.Timeout | null = null;
+  private isLoadingCover = false;
+
   private shouldLoadHeavyAssets = (props: BookItemProps = this.props) => {
     return !props.isSelectBook || props.isSelected;
   };
@@ -64,13 +67,7 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
     };
   }
   async componentDidMount() {
-    const shouldLoad = this.shouldLoadHeavyAssets();
-    if (shouldLoad) {
-      this.setState({
-        cover: await CoverUtil.getCover(this.props.book),
-        isCoverExist: await CoverUtil.isCoverExist(this.props.book),
-      });
-    }
+    await this.loadCoverWithRetry();
     this.setState({
       isBookOffline: await BookUtil.isBookOffline(this.props.book.key),
     });
@@ -91,6 +88,28 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
       BookUtil.redirectBook(this.props.book);
     }
   }
+
+  private loadCoverWithRetry = async (retryCount = 0) => {
+    const shouldLoad = this.shouldLoadHeavyAssets();
+    if (!shouldLoad || this.isLoadingCover) return;
+
+    this.isLoadingCover = true;
+    try {
+      const cover = await CoverUtil.getCover(this.props.book);
+      const isCoverExist = await CoverUtil.isCoverExist(this.props.book);
+      this.setState({ cover, isCoverExist: isCoverExist || !!cover });
+
+      // 如果封面没有加载成功且重试次数小于2，稍后重试
+      if (!cover && !isCoverExist && retryCount < 2) {
+        this.retryTimer = setTimeout(() => {
+          this.isLoadingCover = false;
+          this.loadCoverWithRetry(retryCount + 1);
+        }, 300 * (retryCount + 1));
+      }
+    } finally {
+      this.isLoadingCover = false;
+    }
+  };
   async UNSAFE_componentWillReceiveProps(nextProps: BookItemProps) {
     const shouldLoad = this.shouldLoadHeavyAssets(nextProps);
     const wasShouldLoad = this.shouldLoadHeavyAssets(this.props);
@@ -121,6 +140,10 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
   }
   componentWillUnmount() {
     this.revokeCoverUrl(this.state.cover);
+    if (this.retryTimer) {
+      clearTimeout(this.retryTimer);
+      this.retryTimer = null;
+    }
   }
   handleDeleteBook = () => {
     this.props.handleDeleteDialog(true);
