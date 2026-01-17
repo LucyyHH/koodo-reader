@@ -29,6 +29,7 @@ export interface BookListState {
   displayedBooksCount: number;
   isLoadingMore: boolean;
   fullBooksData: BookModel[];
+  coverCache: { [key: string]: { cover: string; isCoverExist: boolean } };
   itemWidth: number;
   itemHeight: number;
   itemMarginX: number;

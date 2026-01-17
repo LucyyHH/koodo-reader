@@ -12,8 +12,8 @@ import { ConfigService } from "../../assets/lib/kookit-extra-browser.min";
 declare var window: any;
 
 class BookCardItem extends React.Component<BookCardProps, BookCardState> {
-  private shouldLoadHeavyAssets = (props: BookCardProps = this.props) => {
-    return !props.isSelectBook || props.isSelected;
+  private shouldLoadHeavyAssets = () => {
+    return true;
   };
   shouldComponentUpdate(nextProps: BookCardProps, nextState: BookCardState) {
     if (nextState !== this.state) return true;
@@ -63,10 +63,14 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
   }
 
   async componentDidMount() {
-    const shouldLoad = this.shouldLoadHeavyAssets();
-    if (shouldLoad) {
-      // 添加小延迟，避免多个组件同时加载封面导致的并发问题
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 50));
+    // 如果有预加载的封面，直接使用
+    if (this.props.cachedCover !== undefined) {
+      this.setState({
+        cover: this.props.cachedCover,
+        isCoverExist: this.props.cachedCoverExist || !!this.props.cachedCover,
+      });
+    } else {
+      // 否则自己加载
       const cover = await CoverUtil.getCover(this.props.book);
       const isCoverExist = await CoverUtil.isCoverExist(this.props.book);
       this.setState({
@@ -97,17 +101,28 @@ class BookCardItem extends React.Component<BookCardProps, BookCardState> {
     }
   }
   async UNSAFE_componentWillReceiveProps(nextProps: BookCardProps) {
-    const shouldLoad = this.shouldLoadHeavyAssets(nextProps);
-    const wasShouldLoad = this.shouldLoadHeavyAssets(this.props);
+    // 如果预加载的封面更新了，使用新的封面
     if (
-      nextProps.book.key !== this.props.book.key ||
-      (shouldLoad && !wasShouldLoad)
+      nextProps.cachedCover !== undefined &&
+      nextProps.cachedCover !== this.props.cachedCover
     ) {
       const prevCover = this.state.cover;
-      let cover = shouldLoad ? await CoverUtil.getCover(nextProps.book) : "";
-      let isCoverExist = shouldLoad
-        ? await CoverUtil.isCoverExist(nextProps.book)
-        : false;
+      this.setState(
+        {
+          cover: nextProps.cachedCover,
+          isCoverExist: nextProps.cachedCoverExist || !!nextProps.cachedCover,
+        },
+        () => {
+          this.revokeCoverUrl(prevCover);
+        }
+      );
+      return;
+    }
+
+    if (nextProps.book.key !== this.props.book.key) {
+      const prevCover = this.state.cover;
+      let cover = await CoverUtil.getCover(nextProps.book);
+      let isCoverExist = await CoverUtil.isCoverExist(nextProps.book);
       this.setState(
         {
           isFavorite:

@@ -37,6 +37,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
       displayedBooksCount: 24,
       isLoadingMore: false,
       fullBooksData: [], // 存储从数据库加载的完整书籍数据
+      coverCache: {}, // 预加载的封面缓存
       itemWidth: 0,
       itemHeight: 0,
       itemMarginX: 0,
@@ -139,6 +140,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
           isLoadingMore: false,
           scrollTop: 0,
           fullBooksData: [], // 清空旧数据，避免显示旧封面
+          coverCache: {}, // 清空封面缓存
         },
         () => {
           // 滚动到顶部
@@ -166,15 +168,39 @@ class BookList extends React.Component<BookListProps, BookListState> {
     // 使用批量获取提高性能
     const keys = displayedBooks.map((book: any) => book.key);
     const fullBooksData = await DatabaseService.getRecordsByKeys(keys, "books");
+    const sanitizedBooks = fullBooksData.map(this.sanitizeBookCover);
 
     this.setState(
       {
-        fullBooksData: fullBooksData.map(this.sanitizeBookCover),
+        fullBooksData: sanitizedBooks,
       },
       () => {
         this.scheduleMetricsUpdate();
+        // 异步预加载封面，不阻塞渲染
+        this.preloadCovers(sanitizedBooks);
       }
     );
+  };
+
+  // 预加载封面
+  preloadCovers = async (books: BookModel[]) => {
+    const coverCache: { [key: string]: { cover: string; isCoverExist: boolean } } = {};
+    
+    // 串行加载封面，避免并发问题
+    for (const book of books) {
+      try {
+        const cover = await CoverUtil.getCover(book);
+        const isCoverExist = await CoverUtil.isCoverExist(book);
+        coverCache[book.key] = { cover, isCoverExist: isCoverExist || !!cover };
+      } catch (e) {
+        coverCache[book.key] = { cover: "", isCoverExist: false };
+      }
+      
+      // 每加载完一个封面就更新 state，让封面逐个显示
+      this.setState(prevState => ({
+        coverCache: { ...prevState.coverCache, ...coverCache }
+      }));
+    }
   };
   sanitizeBookCover = (book: BookModel) => {
     if (
@@ -397,8 +423,40 @@ class BookList extends React.Component<BookListProps, BookListState> {
     rowHeight: number;
     itemsPerRow: number;
   } | null => {
-    // 暂时禁用虚拟滚动，排查封面不显示的问题
-    return null;
+    const scrollContainer = this.scrollContainer.current;
+    if (!scrollContainer || totalItems === 0) return null;
+    const { itemWidth, itemHeight, itemMarginX, itemMarginY } = this.state;
+    if (!itemHeight) return null;
+    const containerWidth = scrollContainer.clientWidth;
+    const containerHeight = scrollContainer.clientHeight;
+    const rowHeight = itemHeight + itemMarginY;
+    const itemSpaceX = itemWidth + itemMarginX || 1;
+    const itemsPerRow =
+      this.props.viewMode === "list"
+        ? 1
+        : Math.max(1, Math.floor(containerWidth / itemSpaceX));
+    const totalRows = Math.ceil(totalItems / itemsPerRow);
+    const overscanRows = 2;
+    const scrollTop = this.state.scrollTop;
+    const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - overscanRows);
+    const endRow = Math.min(
+      totalRows - 1,
+      Math.floor((scrollTop + containerHeight) / rowHeight) + overscanRows
+    );
+    const startIndex = startRow * itemsPerRow;
+    const endIndex = Math.min(
+      totalItems - 1,
+      (endRow + 1) * itemsPerRow - 1
+    );
+    return {
+      startRow,
+      endRow,
+      startIndex,
+      endIndex,
+      totalRows,
+      rowHeight,
+      itemsPerRow,
+    };
   };
 
   handleKeyFilter = (items: any[], arr: string[]) => {
@@ -470,12 +528,15 @@ class BookList extends React.Component<BookListProps, BookListState> {
       const realIndex = virtualWindow
         ? virtualWindow.startIndex + index
         : index;
+      const cachedCover = this.state.coverCache[resolvedBook.key];
       return this.props.viewMode === "list" ? (
         <BookListItem
           {...{
             key: resolvedBook.key || realIndex,
             book: resolvedBook,
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
+            cachedCover: cachedCover?.cover,
+            cachedCoverExist: cachedCover?.isCoverExist,
           }}
         />
       ) : this.props.viewMode === "card" ? (
@@ -484,6 +545,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
             key: resolvedBook.key || realIndex,
             book: resolvedBook,
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
+            cachedCover: cachedCover?.cover,
+            cachedCoverExist: cachedCover?.isCoverExist,
           }}
         />
       ) : (
@@ -492,6 +555,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
             key: resolvedBook.key || realIndex,
             book: resolvedBook,
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
+            cachedCover: cachedCover?.cover,
+            cachedCoverExist: cachedCover?.isCoverExist,
           }}
         />
       );
