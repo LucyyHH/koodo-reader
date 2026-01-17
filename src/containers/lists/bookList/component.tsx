@@ -38,6 +38,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
       isLoadingMore: false,
       fullBooksData: [], // 存储从数据库加载的完整书籍数据
       coverCache: {}, // 预加载的封面缓存
+      coverCacheVersion: 0,
       itemWidth: 0,
       itemHeight: 0,
       itemMarginX: 0,
@@ -146,6 +147,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
           scrollTop: 0,
           fullBooksData: [], // 清空旧数据，避免显示旧封面
           coverCache: {}, // 清空封面缓存
+          coverCacheVersion: 0,
         },
         () => {
           // 滚动到顶部
@@ -203,7 +205,8 @@ class BookList extends React.Component<BookListProps, BookListState> {
       
       // 每加载完一个封面就更新 state，让封面逐个显示
       this.setState(prevState => ({
-        coverCache: { ...prevState.coverCache, ...coverCache }
+        coverCache: { ...prevState.coverCache, ...coverCache },
+        coverCacheVersion: prevState.coverCacheVersion + 1,
       }));
     }
   };
@@ -543,6 +546,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
         ? virtualWindow.startIndex + index
         : index;
       const cachedCover = this.state.coverCache[resolvedBook.key];
+      const coverCacheVersion = this.state.coverCacheVersion;
       return this.props.viewMode === "list" ? (
         <BookListItem
           {...{
@@ -551,6 +555,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
             cachedCover: cachedCover?.cover,
             cachedCoverExist: cachedCover?.isCoverExist,
+            coverCacheVersion,
           }}
         />
       ) : this.props.viewMode === "card" ? (
@@ -561,6 +566,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
             cachedCover: cachedCover?.cover,
             cachedCoverExist: cachedCover?.isCoverExist,
+            coverCacheVersion,
           }}
         />
       ) : (
@@ -571,6 +577,7 @@ class BookList extends React.Component<BookListProps, BookListState> {
             isSelected: this.props.selectedBooks.indexOf(resolvedBook.key) > -1,
             cachedCover: cachedCover?.cover,
             cachedCoverExist: cachedCover?.isCoverExist,
+            coverCacheVersion,
           }}
         />
       );

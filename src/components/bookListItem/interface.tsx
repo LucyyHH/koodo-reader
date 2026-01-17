@@ -12,6 +12,7 @@ export interface BookItemProps extends RouteComponentProps<any> {
   selectedBooks: string[];
   cachedCover?: string;
   cachedCoverExist?: boolean;
+  coverCacheVersion?: number;
   handleSelectBook: (isSelectBook: boolean) => void;
   handleReadingBook: (book: BookModel) => void;
   handleEditDialog: (isShow: boolean) => void;

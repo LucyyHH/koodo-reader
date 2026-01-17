@@ -11,6 +11,7 @@ export interface BookCardProps extends RouteComponentProps<any> {
   selectedBooks: string[];
   cachedCover?: string;
   cachedCoverExist?: boolean;
+  coverCacheVersion?: number;
   handleSelectBook: (isSelectBook: boolean) => void;
   handleReadingBook: (book: BookModel) => void;
   handleActionDialog: (isShowActionDialog: boolean) => void;

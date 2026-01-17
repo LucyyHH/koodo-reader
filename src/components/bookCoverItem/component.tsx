@@ -23,6 +23,7 @@ class BookCoverItem extends React.Component<BookCoverProps, BookCoverState> {
     if (nextProps.isOpenActionDialog !== this.props.isOpenActionDialog)
       return true;
     if (nextProps.currentBook.key !== this.props.currentBook.key) return true;
+    if (nextProps.coverCacheVersion !== this.props.coverCacheVersion) return true;
     if (nextProps.cachedCover !== this.props.cachedCover) return true;
     if (nextProps.cachedCoverExist !== this.props.cachedCoverExist) return true;
     const nextBook = nextProps.book;
