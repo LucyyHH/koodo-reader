@@ -388,7 +388,15 @@ class BookList extends React.Component<BookListProps, BookListState> {
     }
   };
 
-  getVirtualWindow = (totalItems: number) => {
+  getVirtualWindow = (totalItems: number): {
+    startRow: number;
+    endRow: number;
+    startIndex: number;
+    endIndex: number;
+    totalRows: number;
+    rowHeight: number;
+    itemsPerRow: number;
+  } | null => {
     // 暂时禁用虚拟滚动，排查封面不显示的问题
     return null;
   };
